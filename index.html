@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eARS Report Generator</title>
+    <style>
+        :root {
+            --cx-green: #006564;
+            --cx-dark: #003333;
+            --cx-light: #e6f2f2;
+            --border-color: #cccccc;
+            --bg-gray: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --fieldset-bg: #fafbfc;
+            --input-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --cx-green: #008b8b;
+            --cx-dark: #66cdaa;
+            --cx-light: #002b2b;
+            --border-color: #444444;
+            --bg-gray: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --fieldset-bg: #252525;
+            --input-bg: #2a2a2a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-gray);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-top: 6px solid var(--cx-green);
+            position: relative;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .header-center {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--cx-dark);
+            font-size: 24px;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        [data-theme="dark"] h1 {
+            color: var(--cx-green);
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 13px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .mode-selector {
+            display: flex;
+            background: var(--fieldset-bg);
+            padding: 4px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+            font-size: 14px;
+        }
+
+        .mode-tab.active {
+            background-color: var(--cx-green);
+            color: white;
+        }
+
+        .option-selector {
+            display: flex;
+            background: var(--fieldset-bg);
+            padding: 3px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            gap: 4px;
+        }
+
+        .option-tab {
+            flex: 1;
+            text-align: center;
+            padding: 6px 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s, color 0.2s;
+            font-size: 12px;
+            border: 1px solid transparent;
+        }
+
+        .option-tab.active {
+            background-color: var(--cx-green);
+            color: white;
+            border-color: var(--cx-green);
+        }
+
+        fieldset {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            background: var(--fieldset-bg);
+        }
+
+        legend {
+            font-weight: bold;
+            color: var(--cx-green);
+            background: var(--cx-light);
+            padding: 4px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 12px;
+            align-items: flex-start;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 180px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group-full {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-color);
+            text-transform: uppercase;
+        }
+
+        input[type="text"], select, textarea, input[type="date"] {
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        input[type="text"]:focus, select:focus, textarea:focus, input[type="date"]:focus {
+            border-color: var(--cx-green);
+            outline: none;
+            box-shadow: 0 0 4px rgba(0, 101, 100, 0.3);
+        }
+
+        textarea {
+            resize: vertical;
+            height: 110px;
+            font-family: inherit;
+        }
+
+        .prefix-input-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .prefix-label {
+            background: #555;
+            color: #fff;
+            border: 1px solid var(--border-color);
+            border-right: none;
+            padding: 8px 10px;
+            border-radius: 4px 0 0 4px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .prefix-input-group input {
+            border-radius: 0 4px 4px 0;
+        }
+
+        .dynamic-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .dynamic-row input, .dynamic-row select {
+            flex: 1;
+        }
+
+        .btn {
+            background-color: var(--cx-green);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background-color: #c0392b;
+        }
+
+        .btn-secondary {
+            background-color: #7f8c8d;
+            color: white;
+        }
+
+        .time-hint {
+            font-size: 11px;
+            color: var(--cx-green);
+            margin-top: 3px;
+            font-weight: bold;
+        }
+
+        pre {
+            background: #1e1e1e;
+            color: #dcdcdc;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-top: 15px;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        /* 統一的 Toast 彈出通知樣式 */
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--cx-dark);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 12px;
+            position: fixed;
+            z-index: 2000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            border-left: 5px solid var(--cx-green);
+        }
+
+        .toast.show {
+            visibility: visible;
+            animation: fadein 0.3s, fadeout 0.3s 2.2s;
+        }
+
+        @keyframes fadein {
+            from { bottom: 0; opacity: 0; }
+            to { bottom: 30px; opacity: 1; }
+        }
+
+        @keyframes fadeout {
+            from { bottom: 30px; opacity: 1; }
+            to { bottom: 0; opacity: 0; }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.open {
+            display: flex;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-top: 5px solid var(--cx-green);
+        }
+        .flight-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .flight-table th, .flight-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: left;
+            font-size: 13px;
+        }
+        .flight-table th {
+            background: var(--fieldset-bg);
+            color: var(--cx-green);
+        }
+
+        .hint-text {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .simple-mode-hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+<div class="container">
+    <div class="top-bar">
+        <button type="button" class="btn btn-small btn-secondary" onclick="toggleTheme()" id="themeToggleBtn">🌙 Night</button>
+    </div>
+
+    <div class="header-center">
+        <h1>eARS Report Generator</h1>
+        <div class="subtitle">By Bump Cap</div>
+    </div>
+
+    <div class="mode-selector">
+        <div class="mode-tab active" id="tabSimple" onclick="switchMode('simple')">Smooth Flight Mode</div>
+        <div class="mode-tab" id="tabDetailed" onclick="switchMode('detailed')">Detailed Report Mode</div>
+    </div>
+
+    <form id="reportForm">
+        <fieldset id="sectionFlightInfo" class="simple-mode-hidden">
+            <legend>Flight General Information</legend>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Flight No.</label>
+                    <div class="prefix-input-group">
+                        <span class="prefix-label">CX</span>
+                        <input type="text" id="flightNo" value="719" placeholder="e.g. 719" oninput="autoLookupFlight()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Date (Select via Calendar)</label>
+                    <input type="date" id="calendarPicker" style="padding: 6px;" onchange="onCalendarSelected(this.value)">
+                    <input type="hidden" id="flightDate" value="">
+                </div>
+                <div class="form-group">
+                    <label>Destination</label>
+                    <input type="text" id="dest" value="CGK" placeholder="Auto-filled or manual">
+                </div>
+                <div class="form-group">
+                    <label>Bay</label>
+                    <input type="text" id="bay" value="N5" placeholder="e.g. N5">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>STD (HHMM)</label>
+                    <input type="text" id="std" value="1545" placeholder="1545" oninput="onStdChange()">
+                </div>
+                <div class="form-group">
+                    <label>ETD (HHMM)</label>
+                    <input type="text" id="etd" value="1545" placeholder="1545" oninput="updateCalculations()">
+                </div>
+                <div class="form-group">
+                    <label>ATD (HHMM)</label>
+                    <input type="text" id="atd" value="1559" placeholder="1559" oninput="updateCalculations()">
+                    <div id="atdCalc" class="time-hint"></div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>TCO</label>
+                    <input type="text" id="tco" value="Tony Yeung">
+                </div>
+                <div class="form-group">
+                    <label>SEL</label>
+                    <input type="text" id="sel" value="Mabel Mak">
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset id="sectionDelayInfo" class="simple-mode-hidden">
+            <legend>Delay Information</legend>
+            <div id="delayCodesContainer"></div>
+            <div style="margin-top: 10px;">
+                <button type="button" class="btn btn-small btn-secondary" onclick="addDelayRow()">+ Add Delay Code</button>
+            </div>
+            <div class="hint-text" style="margin-top: 8px;">如果沒有 Delay，請保持留空（將自動輸出為 NIL）。</div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Core Flight Metrics & Handlings</legend>
+            
+            <div class="form-row">
+                <div class="form-group-full">
+                    <label>Crew Boarding Access Point</label>
+                    <div class="option-selector" id="crewAccessSelector">
+                        <div class="option-tab active" onclick="setCrewAccess('Emergency Stairs')">Emergency Stairs</div>
+                        <div class="option-tab" onclick="setCrewAccess('Service Stairs')">Service Stairs</div>
+                        <div class="option-tab" onclick="setCrewAccess('Boarding Gate')">Boarding Gate</div>
+                    </div>
+                    <input type="hidden" id="crewAccessVal" value="Emergency Stairs">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group-full">
+                    <label>Incident / Remark (if any)</label>
+                    <input type="text" id="crewIncident" placeholder="e.g. Late arrival due traffic">
+                </div>
+            </div>
+
+            <div class="form-group-full">
+                <label>Gate Collected Item</label>
+                <div id="gateItemsContainer"></div>
+                <div style="margin-top: 5px;">
+                    <button type="button" class="btn btn-small btn-secondary" onclick="addGateItemRow()">+ Add Gate Item</button>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group simple-mode-hidden" id="groupTotalPax">
+                    <label>Total pax</label>
+                    <input type="text" id="totalPax" value="377">
+                </div>
+                <div class="form-group">
+                    <label>Total bag onboard</label>
+                    <input type="text" id="totalBag" value="398">
+                </div>
+                <div class="form-group">
+                    <label>Bag not loaded</label>
+                    <input type="text" id="bagNotLoaded" value="6">
+                </div>
+            </div>
+
+            <div class="form-group-full" style="margin-top: 10px;">
+                <label>Offload Cargo & Reason</label>
+                <div id="offloadContainer"></div>
+                <div style="margin-top: 5px;">
+                    <button type="button" class="btn btn-small btn-secondary" onclick="addOffloadRow()">+ Add Offload Item</button>
+                </div>
+                <div class="hint-text">如果沒有 Offload，請保持空白。</div>
+            </div>
+
+            <div class="form-group-full simple-mode-hidden" id="groupLandingForm" style="margin-top: 10px;">
+                <label>Landing Form</label>
+                <div class="option-selector" id="landingFormSelector" style="max-width: 300px;">
+                    <div class="option-tab active" onclick="setLandingForm('NIL')">NIL</div>
+                    <div class="option-tab" onclick="setLandingForm('Uplifted')">Uplifted</div>
+                </div>
+                <input type="hidden" id="landingFormVal" value="NIL">
+            </div>
+        </fieldset>
+
+        <fieldset id="sectionTimeline" class="simple-mode-hidden">
+            <legend>Ground Timeline Breakdown</legend>
+            <div class="form-group-full">
+                <textarea id="standardTimeline" style="height: 160px;">At 1455 (-50 mins): Triangle handshake successfully. Agreed boarding wait for TCO signal since cockpit not arrived yet.
+
+At 1500 (-45 mins): Briefing with ALSR and loading team. Loading started.
+
+At 1520 (-25 mins): Cockpit crew onboard, late arrival due integration.
+
+At 1525 (-20 mins): Boarding commenced.
+
+At 1550 (+5 mins): All passenger onboard.
+
+At 1552 (+7 mins): All doors closed.
+
+At 1559 (+14 mins): Aircraft out of event / off-block.</textarea>
+            </div>
+        </fieldset>
+
+        <div class="form-group-full">
+            <label>REMARKS</label>
+            <textarea id="remarks" style="height: 60px;">NIL</textarea>
+        </div>
+
+        <div style="text-align: center; margin-top: 25px;">
+            <button type="button" class="btn" onclick="generateReport()" style="font-size: 16px; padding: 12px 30px;">Generate & Copy Report</button>
+        </div>
+    </form>
+
+    <div style="margin-top: 25px;">
+        <label><strong>Report Output Preview:</strong></label>
+        <pre id="outputPreview">Click "Generate & Copy Report" to produce text...</pre>
+
+        <div style="margin-top: 15px; text-align: right;">
+            <button type="button" class="btn btn-small btn-secondary" onclick="openDbModal()">⚙️ Manage Database (Flights & Delay Codes)</button>
+        </div>
+    </div>
+</div>
+
+<!-- 統一的彈出通知元件 -->
+<div id="toastNotification" class="toast">✅ Done!</div>
+
+<div class="modal" id="dbModal">
+    <div class="modal-content">
+        <h2 style="margin-top:0; color: var(--cx-green); font-size: 18px;">Manage Flight Database (Summer Schedule)</h2>
+        <p class="hint-text" style="margin-bottom: 15px;">直接修改航班或時間，或使用上方快速新增。關閉視窗自動儲存！</p>
+        
+        <div style="display: flex; gap: 8px; margin-bottom: 15px; background: var(--fieldset-bg); padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+            <input type="text" id="newFltNo" placeholder="Flight No (e.g. 564)" style="width: 25%;">
+            <input type="text" id="newDest" placeholder="Dest (e.g. TPE - KIX)" style="width: 45%;">
+            <input type="text" id="newStd" placeholder="STD (0810)" style="width: 20%;">
+            <button type="button" class="btn btn-small" onclick="addNewFlightRow()">➕ Add</button>
+        </div>
+
+        <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px;">
+            <table class="flight-table" id="flightTableUI">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Flight</th>
+                        <th style="width: 45%;">Destination / Route</th>
+                        <th style="width: 20%;">STD</th>
+                        <th style="width: 15%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="flightTableBody"></tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <label style="font-size: 12px; font-weight: bold;">Valid Delay Codes List (Comma separated)</label>
+            <textarea id="dbDelayCodesList" style="height: 60px; font-family: monospace; font-size: 12px; margin-top: 4px;"></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <button type="button" class="btn btn-small btn-danger" onclick="resetDefaultDb()">Reset to Default</button>
+            <button type="button" class="btn btn-small" onclick="closeDbModal()">Close & Save</button>
+        </div>
+    </div>
+</div>
+
+<datalist id="delayCodesDatalist"></datalist>
+
+<script>
+function toggleTheme() {
+    let body = document.body;
+    let btn = document.getElementById('themeToggleBtn');
+    if (body.getAttribute('data-theme') === 'light') {
+        body.setAttribute('data-theme', 'dark');
+        btn.innerText = '☀️ Day';
+        localStorage.setItem('cx_theme', 'dark');
+    } else {
+        body.setAttribute('data-theme', 'light');
+        btn.innerText = '🌙 Night';
+        localStorage.setItem('cx_theme', 'light');
+    }
+}
+
+function initTheme() {
+    let savedTheme = localStorage.getItem('cx_theme') || 'light';
+    document.body.setAttribute('data-theme', savedTheme);
+    document.getElementById('themeToggleBtn').innerText = savedTheme === 'dark' ? '☀️ Day' : '🌙 Night';
+}
+
+let currentMode = 'simple';
+function switchMode(mode) {
+    currentMode = mode;
+    document.getElementById('tabDetailed').classList.toggle('active', mode === 'detailed');
+    document.getElementById('tabSimple').classList.toggle('active', mode === 'simple');
+
+    let fInfo = document.getElementById('sectionFlightInfo');
+    let dInfo = document.getElementById('sectionDelayInfo');
+    let tInfo = document.getElementById('sectionTimeline');
+    let groupTotalPax = document.getElementById('groupTotalPax');
+    let groupLandingForm = document.getElementById('groupLandingForm');
+
+    if (mode === 'simple') {
+        fInfo.classList.add('simple-mode-hidden');
+        dInfo.classList.add('simple-mode-hidden');
+        tInfo.classList.add('simple-mode-hidden');
+        groupTotalPax.classList.add('simple-mode-hidden');
+        groupLandingForm.classList.add('simple-mode-hidden');
+    } else {
+        fInfo.classList.remove('simple-mode-hidden');
+        dInfo.classList.remove('simple-mode-hidden');
+        tInfo.classList.remove('simple-mode-hidden');
+        groupTotalPax.classList.remove('simple-mode-hidden');
+        groupLandingForm.classList.remove('simple-mode-hidden');
+    }
+}
+
+function setCrewAccess(val) {
+    document.getElementById('crewAccessVal').value = val;
+    let tabs = document.querySelectorAll('#crewAccessSelector .option-tab');
+    tabs.forEach(tab => {
+        if (tab.innerText.trim() === val) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+}
+
+function setLandingForm(val) {
+    document.getElementById('landingFormVal').value = val;
+    let tabs = document.querySelectorAll('#landingFormSelector .option-tab');
+    tabs.forEach(tab => {
+        if (tab.innerText.trim() === val) {
+            tab.classList.add('active');
+        } else {
+            tab.classList.remove('active');
+        }
+    });
+}
+
+function initTodayDate() {
+    let today = new Date();
+    let yyyy = today.getFullYear();
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('calendarPicker').value = `${yyyy}-${mm}-${dd}`;
+    formatAndSetDate(today);
+}
+
+function formatAndSetDate(dateObj) {
+    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+    let day = String(dateObj.getDate()).padStart(2, '0');
+    let mon = months[dateObj.getMonth()];
+    let yr = String(dateObj.getFullYear()).slice(-2);
+    document.getElementById('flightDate').value = `${day}${mon}${yr}`;
+}
+
+function onCalendarSelected(dateStr) {
+    if (!dateStr) return;
+    let parts = dateStr.split('-');
+    let dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+    formatAndSetDate(dateObj);
+}
+
+function onStdChange() {
+    let std = document.getElementById('std').value;
+    document.getElementById('etd').value = std;
+    document.getElementById('atd').value = std;
+    updateCalculations();
+}
+
+const DEFAULT_FLIGHTS_DB = {
+    "105": { "dest": "MEL", "std": "0020" },
+    "111": { "dest": "SYD", "std": "1900" },
+    "139": { "dest": "SYD", "std": "0910" },
+    "157": { "dest": "BNE", "std": "1300" },
+    "161": { "dest": "SYD", "std": "2120" },
+    "163": { "dest": "MEL", "std": "1120" },
+    "165": { "dest": "BNE", "std": "0015" },
+    "171": { "dest": "PER", "std": "1515" },
+    "181": { "dest": "SYD", "std": "0045" },
+    "197": { "dest": "AKL", "std": "2105" },
+    "216": { "dest": "MAN", "std": "2215" },
+    "233": { "dest": "MXP", "std": "0055" },
+    "251": { "dest": "LHR", "std": "2355" },
+    "253": { "dest": "LHR", "std": "1440" },
+    "255": { "dest": "LHR", "std": "0120" },
+    "257": { "dest": "LHR", "std": "0910" },
+    "261": { "dest": "CDG", "std": "0005" },
+    "275": { "dest": "BRU", "std": "0045" },
+    "288": { "dest": "FRA", "std": "2315" },
+    "312": { "dest": "AMS", "std": "0015" },
+    "315": { "dest": "MAD", "std": "0045" },
+    "332": { "dest": "PEK", "std": "1200" },
+    "334": { "dest": "PEK", "std": "0725" },
+    "343": { "dest": "DOH", "std": "0100" },
+    "344": { "dest": "PEK", "std": "1700" },
+    "368": { "dest": "PVG", "std": "1425" },
+    "380": { "dest": "PVG", "std": "0925" },
+    "383": { "dest": "ZRH", "std": "0025" },
+    "386": { "dest": "PVG", "std": "1730" },
+    "390": { "dest": "PEK", "std": "0900" },
+    "400": { "dest": "TPE", "std": "1310" },
+    "406": { "dest": "TPE", "std": "1215" },
+    "408": { "dest": "TPE", "std": "2240" },
+    "412": { "dest": "ICN", "std": "0100" },
+    "418": { "dest": "ICN", "std": "1425" },
+    "420": { "dest": "TPE", "std": "1415" },
+    "430": { "dest": "KHH", "std": "0840" },
+    "434": { "dest": "ICN", "std": "0810" },
+    "450": { "dest": "TPE - NGO", "std": "1300" },
+    "464": { "dest": "TPE", "std": "1920" },
+    "472": { "dest": "TPE", "std": "1555" },
+    "474": { "dest": "TPE", "std": "0855" },
+    "494": { "dest": "TPE", "std": "1015" },
+    "500": { "dest": "NRT", "std": "1510" },
+    "502": { "dest": "KIX", "std": "1630" },
+    "504": { "dest": "NRT", "std": "0905" },
+    "520": { "dest": "NRT", "std": "1030" },
+    "524": { "dest": "NRT", "std": "0120" },
+    "530": { "dest": "FUK", "std": "0845" },
+    "532": { "dest": "NGO", "std": "1620" },
+    "542": { "dest": "HND", "std": "1625" },
+    "548": { "dest": "HND", "std": "0855" },
+    "564": { "dest": "TPE - KIX", "std": "0810" },
+    "566": { "dest": "KIX", "std": "0155" },
+    "580": { "dest": "CTS", "std": "0910" },
+    "618": { "dest": "BKK", "std": "2210" },
+    "631": { "dest": "MAA", "std": "2135" },
+    "633": { "dest": "PEN", "std": "0815" },
+    "635": { "dest": "HKT", "std": "1515" },
+    "653": { "dest": "BKK", "std": "1200" },
+    "655": { "dest": "BKK", "std": "1540" },
+    "657": { "dest": "BLR", "std": "2110" },
+    "659": { "dest": "MNL", "std": "1155" },
+    "663": { "dest": "BOM", "std": "2015" },
+    "695": { "dest": "DEL", "std": "1720" },
+    "697": { "dest": "RGN", "std": "1410" },
+    "705": { "dest": "BKK", "std": "0815" },
+    "715": { "dest": "SIN", "std": "2025" },
+    "719": { "dest": "CGK", "std": "1545" },
+    "723": { "dest": "KUL", "std": "0820" },
+    "725": { "dest": "KUL", "std": "1250" },
+    "731": { "dest": "DXB", "std": "1630" },
+    "735": { "dest": "SIN", "std": "1420" },
+    "739": { "dest": "SIN", "std": "1120" },
+    "743": { "dest": "HAN", "std": "1730" },
+    "745": { "dest": "DXB", "std": "0130" },
+    "751": { "dest": "BKK", "std": "1425" },
+    "755": { "dest": "BKK", "std": "0930" },
+    "759": { "dest": "SIN", "std": "0845" },
+    "767": { "dest": "SGN", "std": "0835" },
+    "773": { "dest": "SUB", "std": "0935" },
+    "777": { "dest": "CGK", "std": "0920" },
+    "779": { "dest": "SUB", "std": "1400" },
+    "785": { "dest": "DPS", "std": "1000" },
+    "797": { "dest": "CGK", "std": "1905" },
+    "799": { "dest": "SGN", "std": "1620" },
+    "806": { "dest": "ORD", "std": "1230" },
+    "812": { "dest": "BOS", "std": "1815" },
+    "826": { "dest": "YYZ", "std": "1710" },
+    "828": { "dest": "YYZ", "std": "1035" },
+    "838": { "dest": "YVR", "std": "1620" },
+    "840": { "dest": "JFK", "std": "1615" },
+    "844": { "dest": "JFK", "std": "0130" },
+    "862": { "dest": "NKG", "std": "1710" },
+    "870": { "dest": "SFO", "std": "1415" },
+    "872": { "dest": "SFO", "std": "0050" },
+    "880": { "dest": "LAX", "std": "0005" },
+    "882": { "dest": "LAX", "std": "1635" },
+    "884": { "dest": "LAX", "std": "1300" },
+    "888": { "dest": "YVR", "std": "0045" },
+    "894": { "dest": "LAX", "std": "1245" },
+    "901": { "dest": "MNL", "std": "0900" },
+    "907": { "dest": "MNL", "std": "0720" },
+    "912": { "dest": "FOC", "std": "1545" },
+    "919": { "dest": "MNL", "std": "1420" },
+    "921": { "dest": "CEB", "std": "0825" },
+    "930": { "dest": "XMN", "std": "0855" },
+    "939": { "dest": "MNL", "std": "2155" },
+    "982": { "dest": "KMG", "std": "1405" },
+    "986": { "dest": "CTU", "std": "1015" },
+    "998": { "dest": "URC", "std": "0115" }
+};
+
+const DEFAULT_DELAY_CODES = [
+    "ADC", "ADD", "ADG", "ADO", "AEK", "AFC", "AFH", "AFJ", "AFL", "AFN", "AFO", "AFP", "AGB", "AGC", "AGD", "AGO", "AMA", "AMC", "AMD", "AMO", "AMR", "AMS", "AMW",
+    "ASC", "ASE", "ASF", "ASI", "ASL", "ASN", "ASS", "ASU", "ASX", "ATK", "ATW", "AWK",
+    "CCK", "CDI", "CDL", "CIC", "CIL", "CIO", "CIP", "CIS", "CPD", "CPO", "CPP", "CUC", "CUS",
+    "DFK", "DGK", "ECD", "ECE", "EDA", "EFK", "EOA", "EOB", "EON", "EOO", "EOS",
+    "FAA", "FAC", "FAE", "FAF", "FAH", "FAL", "FAM", "FAO", "FAP", "FAT", "FAW", "FBS", "FCL", "FCO", "FCS", "FFC", "FFF", "FFL", "FFM", "FFO", "FFT", "FTL", "FTO", "FTS", "FSI", "FSM", "FSW", "FLI", "FLM", "FLW", "FPD", "FPE", "FRN", "FSF", "FSL", "FSO", "FSS", "FTI", "FTM", "FTW",
+    "GBD", "GBO", "GBS", "GCL", "GCO", "GDC", "GDO", "GDS", "GET", "GFA", "GFE", "GFO", "GLA", "GLB", "GLC", "GLD", "GLE", "GLF", "GLP", "GLR", "GLS", "GLV", "GLX", "GSL", "GSS", "GTL", "GTS", "GUK",
+    "IAK", "ICK", "IGK", "IPK", "IWH", "MIK", "MOK", "MXX",
+    "PBK", "PCO", "PDO", "PDP", "PEK", "PHB", "PHH", "PHM", "PHO", "PHS", "PLK", "POK", "PSI", "PSO", "PSP", "PSU", "PWK",
+    "RAA", "RAC", "RAD", "RAE", "RAF", "RAG", "RAH", "RAM", "RAN", "RAO", "RAP", "RAQ", "RAR", "RAS", "RAT", "RAU", "RAW", "RCA", "RLO", "RLX", "ROB", "ROC", "ROH", "ROR", "ROV", "RSA", "RTK",
+    "SGK", "TAA", "TAE", "TCT", "TDA", "TDD", "TDL", "TDT", "TDU", "TLT", "TML", "TMS", "TMT", "TNA", "TSS", "TST",
+    "WGI", "WIK", "WOK", "WRK", "WSR", "WTK"
+];
+
+const GATE_ITEM_OPTIONS = ["GB", "BBS", "WCMP", "WALKER", "CARSEAT", "OPENBAG", "ID BAG", "WCLB", "WCBD", "WCBW", "OTHERS"];
+const OFFLOAD_REASONS = ["Payload Problem", "Space Problem", "Trimming Problem", "Aircraft Defects", "On Time Performance", "Shipment Damaged", "ULD Damaged", "Others"];
+
+let flightsDb = {};
+let delayCodesDb = [];
+
+function initDatabase() {
+    let savedFlights = localStorage.getItem('cx_flights_db');
+    let savedDelayCodes = localStorage.getItem('cx_delay_codes_db');
+    flightsDb = savedFlights ? JSON.parse(savedFlights) : DEFAULT_FLIGHTS_DB;
+    delayCodesDb = savedDelayCodes ? JSON.parse(savedDelayCodes) : DEFAULT_DELAY_CODES;
+    document.getElementById('dbDelayCodesList').value = delayCodesDb.join(', ');
+    updateDatalist();
+}
+
+function updateDatalist() {
+    let dl = document.getElementById('delayCodesDatalist');
+    dl.innerHTML = '';
+    delayCodesDb.forEach(code => {
+        let opt = document.createElement('option');
+        opt.value = code;
+        dl.appendChild(opt);
+    });
+}
+
+function openDbModal() {
+    renderFlightTable();
+    document.getElementById('dbModal').classList.add('open');
+}
+
+function closeDbModal() {
+    try {
+        let parsedCodes = document.getElementById('dbDelayCodesList').value.split(',').map(s => s.trim().toUpperCase()).filter(Boolean);
+        delayCodesDb = parsedCodes;
+        localStorage.setItem('cx_flights_db', JSON.stringify(flightsDb));
+        localStorage.setItem('cx_delay_codes_db', JSON.stringify(delayCodesDb));
+        updateDatalist();
+        document.getElementById('dbModal').classList.remove('open');
+        showToast("✅ Database saved successfully!");
+    } catch (e) {
+        alert("Error saving database!");
+    }
+}
+
+function renderFlightTable() {
+    let tbody = document.getElementById('flightTableBody');
+    tbody.innerHTML = '';
+    Object.keys(flightsDb).sort().forEach(flt => {
+        let item = flightsDb[flt];
+        let destVal = typeof item === 'object' ? (item.dest || '') : item;
+        let stdVal = typeof item === 'object' ? (item.std || '') : '';
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><b>CX${flt}</b></td>
+            <td><input type="text" value="${destVal}" id="table_dest_${flt}" onchange="updateFlightEntry('${flt}')" style="padding:4px 6px;"></td>
+            <td><input type="text" value="${stdVal}" id="table_std_${flt}" onchange="updateFlightEntry('${flt}')" style="padding:4px 6px;"></td>
+            <td><button type="button" class="btn btn-small btn-danger" onclick="deleteFlight('${flt}')" style="padding:4px 8px;">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function updateFlightEntry(flt) {
+    let dest = document.getElementById(`table_dest_${flt}`).value.trim();
+    let std = document.getElementById(`table_std_${flt}`).value.trim();
+    flightsDb[flt] = { dest: dest, std: std };
+}
+
+function addNewFlightRow() {
+    let flt = document.getElementById('newFltNo').value.trim();
+    let dest = document.getElementById('newDest').value.trim();
+    let std = document.getElementById('newStd').value.trim();
+    if (!flt || !dest || !std) {
+        alert("請完整填寫 Flight No、Destination 與 STD！");
+        return;
+    }
+    flightsDb[flt] = { dest: dest, std: std };
+    document.getElementById('newFltNo').value = '';
+    document.getElementById('newDest').value = '';
+    document.getElementById('newStd').value = '';
+    renderFlightTable();
+}
+
+function deleteFlight(flt) {
+    if (confirm(`確定要刪除 CX${flt} 嗎？`)) {
+        delete flightsDb[flt];
+        renderFlightTable();
+    }
+}
+
+function resetDefaultDb() {
+    if (confirm("確定要重設回預設夏航季狀態嗎？")) {
+        localStorage.removeItem('cx_flights_db');
+        localStorage.removeItem('cx_delay_codes_db');
+        flightsDb = JSON.parse(JSON.stringify(DEFAULT_FLIGHTS_DB));
+        delayCodesDb = JSON.parse(JSON.stringify(DEFAULT_DELAY_CODES));
+        document.getElementById('dbDelayCodesList').value = delayCodesDb.join(', ');
+        renderFlightTable();
+        updateDatalist();
+        showToast("🔄 Database reset to default!");
+    }
+}
+
+function autoLookupFlight() {
+    let flightNum = document.getElementById('flightNo').value.trim();
+    let destInput = document.getElementById('dest');
+    let stdInput = document.getElementById('std');
+    if (flightsDb[flightNum]) {
+        if (typeof flightsDb[flightNum] === 'object') {
+            destInput.value = flightsDb[flightNum].dest || '';
+            if (flightsDb[flightNum].std) {
+                stdInput.value = flightsDb[flightNum].std;
+                onStdChange();
+            }
+        } else {
+            destInput.value = flightsDb[flightNum];
+        }
+    }
+}
+
+function timeToMinutes(tStr) {
+    if (!tStr || tStr.length !== 4 || isNaN(tStr)) return null;
+    return parseInt(tStr.substring(0, 2), 10) * 60 + parseInt(tStr.substring(2, 4), 10);
+}
+
+function calculateDiff(stdStr, targetStr) {
+    let stdMin = timeToMinutes(stdStr);
+    let targetMin = timeToMinutes(targetStr);
+    if (stdMin === null || targetMin === null) return "";
+    let diff = targetMin - stdMin;
+    if (diff === 0) return "(0 mins)";
+    return diff > 0 ? `(+${diff} mins)` : `(${diff} mins)`;
+}
+
+function updateCalculations() {
+    let std = document.getElementById('std').value;
+    let atd = document.getElementById('atd').value;
+    let diffText = calculateDiff(std, atd);
+    document.getElementById('atdCalc').innerText = diffText ? `ATD vs STD: ${diffText}` : '';
+}
+
+let delayRowCount = 0;
+function addDelayRow(codeVal = "", minVal = "") {
+    delayRowCount++;
+    let container = document.getElementById('delayCodesContainer');
+    let row = document.createElement('div');
+    row.className = 'dynamic-row';
+    row.id = `delayRow_${delayRowCount}`;
+    row.innerHTML = `
+        <input type="text" list="delayCodesDatalist" id="delayCode_${delayRowCount}" value="${codeVal}" placeholder="Code (e.g. FSW)" style="text-transform:uppercase;">
+        <span style="font-weight:bold;">/</span>
+        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" placeholder="Min (e.g. 0013)">
+        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('delayRow_${delayRowCount}').remove()">✕</button>
+    `;
+    container.appendChild(row);
+}
+
+let gateRowCount = 0;
+function addGateItemRow(itemVal = "GB", countVal = "03") {
+    gateRowCount++;
+    let container = document.getElementById('gateItemsContainer');
+    let row = document.createElement('div');
+    row.className = 'dynamic-row';
+    row.id = `gateRow_${gateRowCount}`;
+    let optionsHtml = GATE_ITEM_OPTIONS.map(opt => `<option value="${opt}" ${opt === itemVal ? 'selected' : ''}>${opt}</option>`).join('');
+    row.innerHTML = `
+        <select id="gateItem_${gateRowCount}" style="flex: 1;" onchange="checkGateOther(${gateRowCount})">${optionsHtml}</select>
+        <input type="text" id="gateCount_${gateRowCount}" value="${countVal}" placeholder="Qty (e.g. 03)" style="flex: 1; ${itemVal === 'OTHERS' ? 'display:none;' : ''}">
+        <input type="text" id="gateOtherText_${gateRowCount}" value="" placeholder="Specify item name..." style="flex: 2; ${itemVal === 'OTHERS' ? '' : 'display:none;'}">
+        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('gateRow_${gateRowCount}').remove()">✕</button>
+    `;
+    container.appendChild(row);
+}
+
+function checkGateOther(id) {
+    let sel = document.getElementById(`gateItem_${id}`);
+    let countInput = document.getElementById(`gateCount_${id}`);
+    let otherInput = document.getElementById(`gateOtherText_${id}`);
+    if (sel.value === 'OTHERS') {
+        countInput.style.display = 'none';
+        otherInput.style.display = 'block';
+    } else {
+        countInput.style.display = 'block';
+        otherInput.style.display = 'none';
+    }
+}
+
+let offloadRowCount = 0;
+function addOffloadRow(cargoVal = "", reasonVal = "Payload Problem", customReason = "") {
+    offloadRowCount++;
+    let container = document.getElementById('offloadContainer');
+    let row = document.createElement('div');
+    row.className = 'dynamic-row';
+    row.id = `offloadRow_${offloadRowCount}`;
+    let reasonOptions = OFFLOAD_REASONS.map(r => `<option value="${r}" ${r === reasonVal ? 'selected' : ''}>${r}</option>`).join('');
+    row.innerHTML = `
+        <input type="text" id="offloadCargo_${offloadRowCount}" value="${cargoVal}" placeholder="ULD / Item" style="flex: 1.5;">
+        <select id="offloadReason_${offloadRowCount}" style="flex: 1.5;" onchange="checkOffloadReason(${offloadRowCount})">${reasonOptions}</select>
+        <input type="text" id="offloadCustom_${offloadRowCount}" value="${customReason}" placeholder="Specify reason..." style="flex: 1; ${reasonVal === 'Others' ? '' : 'display:none;'}">
+        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('offloadRow_${offloadRowCount}').remove()">✕</button>
+    `;
+    container.appendChild(row);
+}
+
+function checkOffloadReason(id) {
+    let sel = document.getElementById(`offloadReason_${id}`);
+    let customInput = document.getElementById(`offloadCustom_${id}`);
+    customInput.style.display = (sel.value === 'Others') ? 'block' : 'none';
+}
+
+function initDefaultRows() {
+    addDelayRow("FSW", "0013");
+    addDelayRow("IAK", "0001");
+    addGateItemRow("GB", "03");
+    addOffloadRow("TROCX00004", "Payload Problem", "");
+}
+
+function generateReport() {
+    let flightNo = "CX" + document.getElementById('flightNo').value.trim();
+    let flightDate = document.getElementById('flightDate').value;
+    let dest = document.getElementById('dest').value.trim();
+    let bay = document.getElementById('bay').value.trim();
+    let std = document.getElementById('std').value.trim();
+    let etd = document.getElementById('etd').value.trim();
+    let atd = document.getElementById('atd').value.trim();
+    let tco = document.getElementById('tco').value.trim();
+    let sel = document.getElementById('sel').value.trim();
+    let crewAccess = document.getElementById('crewAccessVal').value;
+    let totalBag = document.getElementById('totalBag').value.trim();
+    let bagNotLoaded = document.getElementById('bagNotLoaded').value.trim();
+    let remarks = document.getElementById('remarks').value.trim();
+
+    let gateArr = [];
+    for (let i = 1; i <= gateRowCount; i++) {
+        let r = document.getElementById(`gateRow_${i}`);
+        if (r) {
+            let item = document.getElementById(`gateItem_${i}`).value;
+            if (item === 'OTHERS') {
+                let otherText = document.getElementById(`gateOtherText_${i}`).value.trim();
+                if (otherText) gateArr.push(otherText);
+            } else {
+                let qty = document.getElementById(`gateCount_${i}`).value.trim();
+                if (qty) gateArr.push(`${qty} ${item}`);
+            }
+        }
+    }
+    let gateStr = gateArr.length > 0 ? gateArr.join(', ') : 'NIL';
+
+    let offloadArr = [];
+    for (let i = 1; i <= offloadRowCount; i++) {
+        let r = document.getElementById(`offloadRow_${i}`);
+        if (r) {
+            let cargo = document.getElementById(`offloadCargo_${i}`).value.trim();
+            let reason = document.getElementById(`offloadReason_${i}`).value;
+            if (reason === 'Others') reason = document.getElementById(`offloadCustom_${i}`).value.trim();
+            if (cargo && reason) offloadArr.push(`- ${cargo} due ${reason}`);
+        }
+    }
+    let offloadStr = offloadArr.length > 0 ? offloadArr.join('\n') : 'NIL';
+
+    let reportText = "";
+
+    if (currentMode === 'simple') {
+        reportText = `Crew boarding access point: ${crewAccess}
+
+- Gate collected item: ${gateStr}
+
+- Total bag onboard: ${totalBag}
+
+- Bag not loaded: ${bagNotLoaded}
+
+- Offload cargo & reason: ${offloadStr}
+
+
+REMARKS
+${remarks}`;
+    } else {
+        let totalPax = document.getElementById('totalPax').value.trim();
+        let landingForm = document.getElementById('landingFormVal').value;
+        let timeline = document.getElementById('standardTimeline').value;
+
+        let delaysArr = [];
+        for (let i = 1; i <= delayRowCount; i++) {
+            let r = document.getElementById(`delayRow_${i}`);
+            if (r) {
+                let code = document.getElementById(`delayCode_${i}`).value.trim().toUpperCase();
+                let min = document.getElementById(`delayMin_${i}`).value.trim();
+                if (code && min) delaysArr.push(`${code}/${min}`);
+            }
+        }
+        let delaysStr = delaysArr.length > 0 ? delaysArr.join(', ') : 'NIL';
+
+        reportText = `${flightNo} / ${flightDate} / ${dest} / ${bay}
+
+STD: ${std}   ETD: ${etd}   ATD: ${atd}
+
+Delay Code: ${delaysStr}
+
+TCO: ${tco}         SEL: ${sel}
+
+Crew boarding access point: ${crewAccess}
+
+- Gate collected item: ${gateStr}
+
+- Total pax: ${totalPax}
+
+- Total bag onboard: ${totalBag}
+
+- Bag not loaded: ${bagNotLoaded}
+
+- Offload cargo & reason: ${offloadStr}
+
+- Landing form: ${landingForm}
+
+
+${timeline}
+
+REMARKS
+${remarks}`;
+    }
+
+    document.getElementById('outputPreview').innerText = reportText;
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(reportText).then(() => {
+            showToast("✅ Report Generated & Copied!");
+        }).catch(err => {
+            fallbackCopyText(reportText);
+        });
+    } else {
+        fallbackCopyText(reportText);
+    }
+}
+
+function fallbackCopyText(text) {
+    let textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.top = "0";
+    textArea.style.left = "0";
+    textArea.style.position = "fixed";
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        showToast("✅ Report Generated & Copied!");
+    } catch (err) {
+        alert("複製失敗，請手動複製預覽區塊內容。");
+    }
+    document.body.removeChild(textArea);
+}
+
+// 通用彈出通知函式（支援自訂訊息）
+function showToast(message) {
+    let toast = document.getElementById("toastNotification");
+    toast.innerText = message;
+    toast.className = "toast show";
+    setTimeout(() => {
+        toast.className = toast.className.replace("show", "");
+    }, 2500);
+}
+
+window.onload = function() {
+    initTheme();
+    initDatabase();
+    initTodayDate();
+    initDefaultRows();
+    updateCalculations();
+}
+</script>
+
+</body>
+</html>
