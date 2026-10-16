@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>eARS Report Generator</title>
+    <title>eARS Report Generator v0.1</title>
     <style>
         :root {
             --cx-green: #006564;
@@ -82,6 +82,19 @@
             font-size: 12px;
             margin-top: 2px;
             font-weight: 500;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .version-badge {
+            background-color: var(--cx-green);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
         }
 
         .mode-selector {
@@ -193,7 +206,7 @@
             text-transform: uppercase;
         }
 
-        input[type="text"], select, textarea, input[type="date"] {
+        input[type="text"], input[type="number"], select, textarea, input[type="date"] {
             padding: 10px 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
@@ -205,7 +218,7 @@
             min-height: 44px;
         }
 
-        input[type="text"]:focus, select:focus, textarea:focus, input[type="date"]:focus {
+        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus, input[type="date"]:focus {
             border-color: var(--cx-green);
             outline: none;
             box-shadow: 0 0 4px rgba(0, 101, 100, 0.3);
@@ -241,17 +254,56 @@
             border-radius: 0 6px 6px 0;
         }
 
+        /* 專門針對 Gate Items 與 Offload 平排與數字加減按鈕設計 */
         .dynamic-row {
             display: flex;
             gap: 8px;
             align-items: center;
             margin-bottom: 8px;
-            flex-wrap: wrap;
         }
 
-        .dynamic-row input, .dynamic-row select {
+        .qty-stepper {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg);
+            overflow: hidden;
+            min-height: 44px;
             flex: 1;
-            min-width: 110px;
+        }
+
+        .qty-btn {
+            background-color: #e0e0e0;
+            color: #333;
+            border: none;
+            width: 40px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        [data-theme="dark"] .qty-btn {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .qty-btn:active {
+            opacity: 0.7;
+        }
+
+        .qty-input {
+            border: none !important;
+            text-align: center;
+            font-weight: bold;
+            padding: 0 !important;
+            min-height: 44px !important;
+            width: 100%;
         }
 
         .btn {
@@ -312,7 +364,6 @@
             overflow-y: auto;
         }
 
-        /* 複製成功彈出通知 (Toast) 樣式 */
         .toast {
             visibility: hidden;
             min-width: 260px;
@@ -397,36 +448,19 @@
             display: none !important;
         }
 
-        /* Responsive Breakpoints for Mobile UX */
         @media (max-width: 600px) {
             body {
                 padding: 8px;
             }
-
             .container {
                 padding: 14px 12px;
             }
-
             .form-group {
                 min-width: 100%;
             }
-
             .mode-tab {
                 font-size: 12px;
                 padding: 10px 4px;
-            }
-
-            .dynamic-row {
-                gap: 6px;
-            }
-
-            .dynamic-row input, .dynamic-row select {
-                min-width: 100%;
-            }
-
-            .dynamic-row button {
-                width: 100%;
-                margin-top: 2px;
             }
         }
     </style>
@@ -440,7 +474,10 @@
 
     <div class="header-center">
         <h1>eARS Report Generator</h1>
-        <div class="subtitle">By Bump Cap</div>
+        <div class="subtitle">
+            <span>By Bump Cap</span>
+            <span class="version-badge">Version 0.1</span>
+        </div>
     </div>
 
     <div class="mode-selector">
@@ -456,7 +493,7 @@
                     <label>Flight No.</label>
                     <div class="prefix-input-group">
                         <span class="prefix-label">CX</span>
-                        <input type="text" id="flightNo" value="" placeholder="" oninput="autoLookupFlight()">
+                        <input type="text" id="flightNo" value="" oninput="autoLookupFlight()">
                     </div>
                 </div>
                 <div class="form-group">
@@ -466,26 +503,26 @@
                 </div>
                 <div class="form-group">
                     <label>Destination</label>
-                    <input type="text" id="dest" value="" placeholder="">
+                    <input type="text" id="dest" value="">
                 </div>
                 <div class="form-group">
                     <label>Bay</label>
-                    <input type="text" id="bay" value="" placeholder="">
+                    <input type="text" id="bay" value="">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>STD (HHMM)</label>
-                    <input type="text" id="std" value="" placeholder="" oninput="onStdChange()">
+                    <input type="text" id="std" value="" oninput="onStdChange()">
                 </div>
                 <div class="form-group">
                     <label>ETD (HHMM)</label>
-                    <input type="text" id="etd" value="" placeholder="" oninput="updateCalculations()">
+                    <input type="text" id="etd" value="" oninput="updateCalculations()">
                 </div>
                 <div class="form-group">
                     <label>ATD (HHMM)</label>
-                    <input type="text" id="atd" value="" placeholder="" oninput="updateCalculations()">
+                    <input type="text" id="atd" value="" oninput="updateCalculations()">
                     <div id="atdCalc" class="time-hint"></div>
                 </div>
             </div>
@@ -493,11 +530,11 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>TCO</label>
-                    <input type="text" id="tco" value="Tony Yeung" placeholder="">
+                    <input type="text" id="tco" value="Tony Yeung">
                 </div>
                 <div class="form-group">
                     <label>SEL</label>
-                    <input type="text" id="sel" value="" placeholder="">
+                    <input type="text" id="sel" value="">
                 </div>
             </div>
         </fieldset>
@@ -529,7 +566,7 @@
             <div class="form-row">
                 <div class="form-group-full">
                     <label>Incident / Remark (if any)</label>
-                    <input type="text" id="crewIncident" placeholder="">
+                    <input type="text" id="crewIncident">
                 </div>
             </div>
 
@@ -544,15 +581,15 @@
             <div class="form-row">
                 <div class="form-group simple-mode-hidden" id="groupTotalPax">
                     <label>Total pax</label>
-                    <input type="text" id="totalPax" value="" placeholder="">
+                    <input type="text" id="totalPax" value="">
                 </div>
                 <div class="form-group">
                     <label>Total bag onboard</label>
-                    <input type="text" id="totalBag" value="" placeholder="">
+                    <input type="text" id="totalBag" value="">
                 </div>
                 <div class="form-group">
                     <label>Bag not loaded</label>
-                    <input type="text" id="bagNotLoaded" value="" placeholder="">
+                    <input type="text" id="bagNotLoaded" value="">
                 </div>
             </div>
 
@@ -578,13 +615,13 @@
         <fieldset id="sectionTimeline" class="simple-mode-hidden">
             <legend>Ground Timeline Breakdown</legend>
             <div class="form-group-full">
-                <textarea id="standardTimeline" placeholder=""></textarea>
+                <textarea id="standardTimeline"></textarea>
             </div>
         </fieldset>
 
         <div class="form-group-full">
             <label>REMARKS</label>
-            <textarea id="remarks" style="height: 60px;" placeholder=""></textarea>
+            <textarea id="remarks" style="height: 60px;"></textarea>
         </div>
 
         <div style="text-align: center; margin-top: 20px;">
@@ -602,12 +639,11 @@
     </div>
 </div>
 
-<!-- 彈出通知元件 -->
 <div id="toastNotification" class="toast">✅ Done!</div>
 
 <div class="modal" id="dbModal">
     <div class="modal-content">
-        <h2 style="margin-top:0; color: var(--cx-green); font-size: 16px;">Manage Flight Database (Summer Schedule)</h2>
+        <h2 style="margin-top:0; color: var(--cx-green); font-size: 16px;">Manage Flight Database</h2>
         <p class="hint-text" style="margin-bottom: 12px;">直接修改航班或時間，或使用上方快速新增。關閉視窗自動儲存！</p>
         
         <div style="display: flex; gap: 6px; margin-bottom: 12px; background: var(--fieldset-bg); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap;">
@@ -1024,10 +1060,11 @@ function addDelayRow(codeVal = "", minVal = "") {
     let row = document.createElement('div');
     row.className = 'dynamic-row';
     row.id = `delayRow_${delayRowCount}`;
+    row.style.marginBottom = '8px';
     row.innerHTML = `
-        <input type="text" list="delayCodesDatalist" id="delayCode_${delayRowCount}" value="${codeVal}" placeholder="" style="text-transform:uppercase;">
-        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" placeholder="">
-        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('delayRow_${delayRowCount}').remove()">✕ Remove</button>
+        <input type="text" list="delayCodesDatalist" id="delayCode_${delayRowCount}" value="${codeVal}" placeholder="Code" style="text-transform:uppercase; flex:1;">
+        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" placeholder="Min" style="flex:1;">
+        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('delayRow_${delayRowCount}').remove()" style="flex:0.8;">✕</button>
     `;
     container.appendChild(row);
 }
@@ -1039,26 +1076,54 @@ function addGateItemRow(itemVal = "GB", countVal = "") {
     let row = document.createElement('div');
     row.className = 'dynamic-row';
     row.id = `gateRow_${gateRowCount}`;
+    row.style.marginBottom = '8px';
     let optionsHtml = GATE_ITEM_OPTIONS.map(opt => `<option value="${opt}" ${opt === itemVal ? 'selected' : ''}>${opt}</option>`).join('');
+    
+    let safeCount = (countVal !== "" && !isNaN(countVal) && parseInt(countVal) >= 0) ? parseInt(countVal) : "";
+
     row.innerHTML = `
-        <select id="gateItem_${gateRowCount}" onchange="checkGateOther(${gateRowCount})">${optionsHtml}</select>
-        <input type="text" id="gateCount_${gateRowCount}" value="${countVal}" placeholder="" style="${itemVal === 'OTHERS' ? 'display:none;' : ''}">
-        <input type="text" id="gateOtherText_${gateRowCount}" value="" placeholder="" style="${itemVal === 'OTHERS' ? '' : 'display:none;'}">
-        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('gateRow_${gateRowCount}').remove()">✕ Remove</button>
+        <select id="gateItem_${gateRowCount}" onchange="checkGateOther(${gateRowCount})" style="flex: 1.2;">${optionsHtml}</select>
+        
+        <div id="gateStepper_${gateRowCount}" class="qty-stepper" style="flex: 1.2; ${itemVal === 'OTHERS' ? 'display:none;' : 'display:flex;'}">
+            <button type="button" class="qty-btn" onclick="adjustQty(${gateRowCount}, -1)">-</button>
+            <input type="number" id="gateCount_${gateRowCount}" value="${safeCount}" min="0" step="1" class="qty-input" placeholder="Qty" oninput="validatePositive(this)">
+            <button type="button" class="qty-btn" onclick="adjustQty(${gateRowCount}, 1)">+</button>
+        </div>
+
+        <input type="text" id="gateOtherText_${gateRowCount}" value="" placeholder="Item name" style="flex: 1.2; ${itemVal === 'OTHERS' ? 'display:block;' : 'display:none;'}">
+        
+        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('gateRow_${gateRowCount}').remove()" style="flex: 0.6; min-width: 44px;">✕</button>
     `;
     container.appendChild(row);
 }
 
 function checkGateOther(id) {
     let sel = document.getElementById(`gateItem_${id}`);
-    let countInput = document.getElementById(`gateCount_${id}`);
+    let stepperDiv = document.getElementById(`gateStepper_${id}`);
     let otherInput = document.getElementById(`gateOtherText_${id}`);
     if (sel.value === 'OTHERS') {
-        countInput.style.display = 'none';
+        stepperDiv.style.display = 'none';
         otherInput.style.display = 'block';
     } else {
-        countInput.style.display = 'block';
+        stepperDiv.style.display = 'flex';
         otherInput.style.display = 'none';
+    }
+}
+
+function adjustQty(id, delta) {
+    let input = document.getElementById(`gateCount_${id}`);
+    let val = parseInt(input.value) || 0;
+    let newVal = val + delta;
+    if (newVal < 0) newVal = 0;
+    input.value = newVal;
+}
+
+function validatePositive(input) {
+    if (input.value !== "") {
+        let val = parseInt(input.value);
+        if (isNaN(val) || val < 0) {
+            input.value = 0;
+        }
     }
 }
 
@@ -1069,12 +1134,13 @@ function addOffloadRow(cargoVal = "", reasonVal = "Payload Problem", customReaso
     let row = document.createElement('div');
     row.className = 'dynamic-row';
     row.id = `offloadRow_${offloadRowCount}`;
+    row.style.marginBottom = '8px';
     let reasonOptions = OFFLOAD_REASONS.map(r => `<option value="${r}" ${r === reasonVal ? 'selected' : ''}>${r}</option>`).join('');
     row.innerHTML = `
-        <input type="text" id="offloadCargo_${offloadRowCount}" value="${cargoVal}" placeholder="">
-        <select id="offloadReason_${offloadRowCount}" onchange="checkOffloadReason(${offloadRowCount})">${reasonOptions}</select>
-        <input type="text" id="offloadCustom_${offloadRowCount}" value="${customReason}" placeholder="" style="${reasonVal === 'Others' ? '' : 'display:none;'}">
-        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('offloadRow_${offloadRowCount}').remove()">✕ Remove</button>
+        <input type="text" id="offloadCargo_${offloadRowCount}" value="${cargoVal}" placeholder="ULD / Cargo" style="flex: 1.2;">
+        <select id="offloadReason_${offloadRowCount}" onchange="checkOffloadReason(${offloadRowCount})" style="flex: 1.2;">${reasonOptions}</select>
+        <input type="text" id="offloadCustom_${offloadRowCount}" value="${customReason}" placeholder="Reason" style="flex: 1.2; ${reasonVal === 'Others' ? 'display:block;' : 'display:none;'}">
+        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('offloadRow_${offloadRowCount}').remove()" style="flex: 0.6; min-width: 44px;">✕</button>
     `;
     container.appendChild(row);
 }
@@ -1110,7 +1176,10 @@ function generateReport() {
                 if (otherText) gateArr.push(otherText);
             } else {
                 let qty = document.getElementById(`gateCount_${i}`).value.trim();
-                if (qty) gateArr.push(`${qty} ${item}`);
+                if (qty) {
+                    let formattedQty = String(qty).padStart(2, '0');
+                    gateArr.push(`${formattedQty} ${item}`);
+                }
             }
         }
     }
