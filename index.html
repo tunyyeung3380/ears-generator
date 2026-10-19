@@ -282,9 +282,9 @@
 
         textarea {
             resize: vertical;
-            height: 140px;
+            height: 160px;
             font-family: inherit;
-            min-height: 100px;
+            min-height: 120px;
         }
 
         .prefix-input-group {
@@ -548,7 +548,7 @@
         <h1>eARS Report Generator</h1>
         <div class="subtitle">
             <span class="boxed-badge">By Bump Cap 🧢</span>
-            <span class="boxed-badge version-badge">Version 1.0 </span>
+            <span class="boxed-badge version-badge">Version 0.5</span>
         </div>
     </div>
 
@@ -590,15 +590,15 @@
             <div class="form-row">
                 <div class="form-group">
                     <label>STD (HHMM)</label>
-                    <input type="text" id="std" value="" oninput="onStdChange()">
+                    <input type="text" id="std" value="" maxlength="4" inputmode="numeric" placeholder="HHMM" oninput="formatTimeInput(this)" onchange="onStdChange()">
                 </div>
                 <div class="form-group">
                     <label>ETD (HHMM)</label>
-                    <input type="text" id="etd" value="" oninput="updateCalculations()">
+                    <input type="text" id="etd" value="" maxlength="4" inputmode="numeric" placeholder="HHMM" oninput="formatTimeInput(this)" onchange="updateCalculations()">
                 </div>
                 <div class="form-group">
                     <label>ATD (HHMM)</label>
-                    <input type="text" id="atd" value="" oninput="updateCalculations()">
+                    <input type="text" id="atd" value="" maxlength="4" inputmode="numeric" placeholder="HHMM" oninput="formatTimeInput(this)" onchange="updateCalculations()">
                     <div id="atdCalc"></div>
                 </div>
             </div>
@@ -660,15 +660,15 @@
             <div class="form-row">
                 <div class="form-group simple-mode-hidden" id="groupTotalPax">
                     <label>Total pax</label>
-                    <input type="text" id="totalPax" value="">
+                    <input type="text" id="totalPax" value="" inputmode="numeric">
                 </div>
                 <div class="form-group">
                     <label>Total bag onboard</label>
-                    <input type="text" id="totalBag" value="">
+                    <input type="text" id="totalBag" value="" inputmode="numeric">
                 </div>
                 <div class="form-group">
                     <label>Bag not loaded</label>
-                    <input type="text" id="bagNotLoaded" value="">
+                    <input type="text" id="bagNotLoaded" value="" inputmode="numeric">
                 </div>
             </div>
 
@@ -697,22 +697,22 @@
                 <label>Select IRR Case Preset</label>
                 <select id="irrCaseSelect" onchange="onIrrCaseChange()">
                     <option value="NIL">NIL</option>
-                    <option value="Baggage Reconciliation">1. Baggage Reconciliation (Missing / Sick / As Per Airline’s Request)</option>
-                    <option value="Cargo Loading">2. Cargo Loading</option>
-                    <option value="Technical / Aircraft Maintenance">3. Technical / Aircraft Maintenance</option>
-                    <option value="Ground Return / Air Return">4. Ground Return / Air Return</option>
-                    <option value="Passenger Connection / Transfer">5. Passenger Connection / Transfer</option>
-                    <option value="Inflight Passenger Issue">6. Inflight Passenger Issue</option>
-                    <option value="Crew Issue">7. Crew Issue</option>
-                    <option value="Cabin Issue">8. Cabin Issue</option>
-                    <option value="Cabin Cleaning">9. Cabin Cleaning</option>
-                    <option value="Catering">10. Catering</option>
-                    <option value="Fueling">11. Fueling</option>
-                    <option value="Baggage / Cargo Incident">12. Baggage / Cargo</option>
-                    <option value="Airport Facility">13. Airport Facility</option>
-                    <option value="Loading Equipment">14. Loading Equipment</option>
-                    <option value="System Failure">15. System Failure</option>
-                    <option value="Others">16. Others</option>
+                    <option value="Baggage Reconciliation">Baggage Reconciliation (Missing / Sick / As Per Airline’s Request)</option>
+                    <option value="Cargo Loading">Cargo Loading</option>
+                    <option value="Technical / Aircraft Maintenance">Technical / Aircraft Maintenance</option>
+                    <option value="Ground Return / Air Return">Ground Return / Air Return</option>
+                    <option value="Passenger Connection / Transfer">Passenger Connection / Transfer</option>
+                    <option value="Inflight Passenger Issue">Inflight Passenger Issue</option>
+                    <option value="Crew Issue">Crew Issue</option>
+                    <option value="Cabin Issue">Cabin Issue</option>
+                    <option value="Cabin Cleaning">Cabin Cleaning</option>
+                    <option value="Catering">Catering</option>
+                    <option value="Fueling">Fueling</option>
+                    <option value="Baggage / Cargo Incident">Baggage / Cargo Incident</option>
+                    <option value="Airport Facility">Airport Facility</option>
+                    <option value="Loading Equipment">Loading Equipment</option>
+                    <option value="System Failure">System Failure</option>
+                    <option value="Others">Others</option>
                 </select>
             </div>
 
@@ -724,6 +724,11 @@
         <div class="form-group-full">
             <label>REMARKS</label>
             <textarea id="remarks" style="height: 60px;" placeholder=""></textarea>
+        </div>
+
+        <div class="form-group-full" style="margin-top: 15px;">
+            <label>eARS Category Path Guide</label>
+            <input type="text" id="categoryPathGuide" value="" readonly style="background-color: var(--fieldset-bg) !important; font-weight: bold; color: var(--cx-green) !important;">
         </div>
 
         <div class="action-buttons">
@@ -752,7 +757,7 @@
         <div style="display: flex; gap: 6px; margin-bottom: 12px; background: var(--fieldset-bg); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap;">
             <input type="text" id="newFltNo" placeholder="Flt No" style="flex: 1; min-width: 80px;">
             <input type="text" id="newDest" placeholder="Dest" style="flex: 2; min-width: 120px;">
-            <input type="text" id="newStd" placeholder="STD" style="flex: 1; min-width: 80px;">
+            <input type="text" id="newStd" placeholder="STD" style="flex: 1; min-width: 80px;" maxlength="4" inputmode="numeric" oninput="formatTimeInput(this)">
             <button type="button" class="btn btn-small" onclick="addNewFlightRow()" style="width: 100%; margin-top: 4px;">➕ Add Flight</button>
         </div>
 
@@ -803,6 +808,12 @@ function initTheme() {
     let savedTheme = localStorage.getItem('cx_theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
     document.getElementById('themeToggleBtn').innerText = savedTheme === 'dark' ? '☀️ Day' : '🌙 Night';
+}
+
+// 智慧時間格式化工具（輸入時自動過濾非數字，限制 4 位數並對齊）
+function formatTimeInput(input) {
+    let val = input.value.replace(/\D/g, '').substring(0, 4);
+    input.value = val;
 }
 
 let currentMode = 'simple';
@@ -906,32 +917,7 @@ function updateDaysDropdown() {
     ddSelect.innerHTML = '';
     for (let i = 1; i <= totalDays; i++) {
         let dStr = String(i).padStart(2, '0');
-        ddSelect.innerHTML += `<option value="${dStr}">${dStr}</option>`;
-    }
-
-    if (currentSelectedDay <= totalDays) {
-        ddSelect.value = String(currentSelectedDay).padStart(2, '0');
-    } else {
-        ddSelect.value = String(totalDays).padStart(2, '0');
-    }
-}
-
-function onMonthChange() {
-    updateDaysDropdown();
-    onDateChange();
-}
-
-function onYearChange() {
-    updateDaysDropdown();
-    onDateChange();
-}
-
-function onDateChange() {
-    let dd = document.getElementById('dateDD').value;
-    let mmmIdx = parseInt(document.getElementById('dateMMM').value, 10);
-    let mmmStr = months[mmmIdx];
-    let yy = document.getElementById('dateYY').value;
-    document.getElementById('flightDate').value = `${dd}${mmmStr}${yy}`;
+        ddSelect.innerHTML += `<option value="${dStr}">${dStr}</option>`; }  if (currentSelectedDay <= totalDays) { ddSelect.value = String(currentSelectedDay).padStart(2, '0'); } else { ddSelect.value = String(totalDays).padStart(2, '0'); } }  function onMonthChange() { updateDaysDropdown(); onDateChange(); }  function onYearChange() { updateDaysDropdown(); onDateChange(); }  function onDateChange() { let dd = document.getElementById('dateDD').value; let mmmIdx = parseInt(document.getElementById('dateMMM').value, 10); let mmmStr = months[mmmIdx]; let yy = document.getElementById('dateYY').value; document.getElementById('flightDate').value = `${dd}${mmmStr}${yy}`;
 }
 
 function onStdChange() {
@@ -941,119 +927,128 @@ function onStdChange() {
     updateCalculations();
 }
 
-// 16個 IRR cases 的時間線範本（Case Heading 後方嚴格隔一行，時間單底線 _）
+// 16個 IRR Cases（全部 OR 改成 /）
 const irrPresets = {
     "Baggage Reconciliation": {
-        template: `Baggage Reconciliation (Missing / Sick / As Per Airline’s Request)
+        path: "Ramp Services > Apron Related Issues > Baggage Reconciliation",
+        template: `Baggage Reconciliation (Missing / Sick / As Per Airline’s Request) 
 
 • Time Received Info: _
-• Offload Start Time: _
-• Discharge: _A / _A – FWD / AFT / BULK Hold
-• Bag Located / Reload Start Time: _
+• Offload Start Time (Discharge: _A / _A – FWD/AFT Hold): _
+• Bag Located / Reload Start Time (Reload: _A / _A): _
 • Reload Completion Time: _`
     },
     "Cargo Loading": {
+        path: "Ramp Services > Apron Related Issues > Loading",
         template: `Cargo Loading
 
-• Loading Start & End Time: _ to _ (Full team / AB team / Extra manpower: _ )
+• Loading Start & End Time (Full team / AB team / the no. of extra manpower): _ to _
 • Delay Cause / Descriptions (PDU Inop, Delay Manpower, Human Error etc.): _`
     },
     "Technical / Aircraft Maintenance": {
+        path: "Ramp Services > Apron Related Issues > Engineering",
         template: `Technical / Aircraft Maintenance
 
-• Defect Discovery Time: _
-• Defect Details & Hold Boarding Reason (by Engineer / Captain / SSCM – update SEL and HOL): _
+• Defect Discovery Time / Details (e.g. Hold boarding reason: by Engineer / Captain / SSCM – update SEL and HOL): _
 • Rectification Action Taken: _
-• Mechanic Arrival Time: _
-• Defect Clearance Time (Fixed / Aircraft Released): _
+• Defect Clearance (Mechanic arrival time / Fixed / Aircraft Released): _
 • MEL Ref No. (if any): _`
     },
     "Ground Return / Air Return": {
+        path: "Select the field that correspond to the incident type",
         template: `Ground Return / Air Return
 
-• Time Received Info: _
-• Reason for Ground / Air Return (Technical, Medical Case etc.): _
-• Aircraft Back on Stand / Door Reopened Time: _
-• Disembark Pax & AVESCO Arrive Time: _
+• Timeline (Received Info / Aircraft Back on Stand / Door Reopened etc.): _
+• Reason for Ground / Air Return (Technical, Medical Case etc.) (e.g. Bay No / Disembark pax and AVESCO arrive time / Reason): _
 • Description (Ramp handling only): _`
     },
     "Passenger Connection / Transfer": {
+        path: "Miscellaneous > Ramp Services",
         template: `Passenger Connection / Transfer
 
-• Inbound Flight No. & ATA: CX_ ATA: _ from Bay: _
-• Connecting Passengers / Bags Affected: _C / _W / _Y / _bags
+• Inbound Flight No. & ATA (e.g. CX123 ATA: XXXX from bay: xx): _
+• No. of Connecting Passengers / Bags Affected (e.g.10C/20W/30Y/50bags): _
 • Arrival Time of Passengers at Gate: _
-• Arrival Time of Baggage at Shipside: At _, _ bags with _A arrive at shipside (Shortship: _ bags)`
+• Arrival Time of Baggage at Shipside (e.g. how many _A, At xxxx, xx bags with _A arrive at shipside, shortship how many bags, etc): _`
     },
     "Inflight Passenger Issue": {
+        path: "Miscellaneous > Ramp Services",
         template: `Inflight Passenger Issue
 
 • Passenger Security No. / Seat No.: _
-• Incident Description (Disruptive Behaviour, Medical, Cancel Flight etc.): _
-• Timeline (Reported: _ / Resolved: _) & Actions Taken (Ramp handling only): _`
+• Incident Description (e.g. reason - Disruptive Behaviour, Medical, Cancel Flight etc.): _
+• Timeline (Reported + Resolved) and Actions Taken (Ramp handling only): _`
     },
     "Crew Issue": {
+        path: "Ramp Services > Apron Related Issues > Crew Positioning / Miscellaneous > Ramp Services",
         template: `Crew Issue
 
-• Issue Type (Late Arrival / Prolonged Preparation / Request / Clarification etc.): _
+• Late Arrival / Prolonged Preparation / Request / Clarification etc.: _
 • Timeline / Description: _`
     },
     "Cabin Issue": {
+        path: "Miscellaneous > Ramp Services",
         template: `Cabin Issue
 
-• Defect Location & Description (IFE, Seat, Overhead, Galley, Lavatory etc.): _
+• Defect Location / Description (IFE, Seat, Overhead, Galley, Lavatory etc.): _
 • Timeline: _
 • Actions Taken: _`
     },
     "Cabin Cleaning": {
+        path: "Ramp Services > Apron Related Issues > Cleaning Equipment / Manpower",
         template: `Cabin Cleaning
 
 • Cleaning Start & Finish Times: _ to _
-• Manpower Details: _`
+• Manpower: _`
     },
     "Catering": {
+        path: "Ramp Services > Apron Related Issues > Catering Equipment / Manpower",
         template: `Catering
 
 • Late Delivery / Loading Start & Completion Times: _ to _
 • Missing Items (Entrée, Special Meals, Amenity etc.): _`
     },
     "Fueling": {
+        path: "Ramp Services > Apron Related Issues > Fuelling",
         template: `Fueling
 
 • Incident Description (Late fuel truck, Fallback Manual Slip, Slow Flow etc.): _
-• Timeline / Description:
-  - Pre Fuel Time: _
-  - S/B Fuel Time: _
-  - Final Fuel Time: _`
+• Timeline / Description (Pre Fuel / S/B fuel / Final fuel): _`
     },
     "Baggage / Cargo Incident": {
+        path: "Ramp Services > Cargo Related Issues / Miscellaneous > Ramp Services",
         template: `Baggage / Cargo Incident
 
 • Incident Description (Online or Local: Late Delivery, Damage etc.): _
 • Timeline / Description: _`
     },
     "Airport Facility": {
+        path: "Ramp Services > Apron Related Issues > Airport Facility",
         template: `Airport Facility
 
-• Facility Affected (PBB / Pax Step / Mobile Stair / GPU / PCA Failure etc.): _
+• Facility Affected (PBB / Pax Step / Mobile Stair / GPU / PCA Failure, etc.): _
 • Timeline / Description: _`
     },
     "Loading Equipment": {
+        path: "Ramp Services > Apron Related Issues > GHA Equipment / Manpower",
         template: `Loading Equipment
 
-• Facility Affected (LDL, Conveyor Belt, Tractor etc.) & Equipment No.: _
-• Breakdown Period: from _ to _
-• Reporting Time to HAS Control / DAS / HOL: _
-• Problem Solved Time: _ (Equipment replaced / reset by maintenance at _)`
+• Facility Affected (LDL, Conveyor Belt, Tractor, etc.): _
+• Breakdown period: from _ to _
+• Equipment number: _
+• Reporting time to HAS Control / DAS / HOL: _
+• Problem solved at _, equipment replaced / reset by maintenance at _`
     },
     "System Failure": {
+        path: "FM Mobile: Ramp Services > Load Control Related Issues > Departure Control System / Others: Miscellaneous > Ramp Services",
         template: `System Failure
 
-• System Affected (FM Mobile / BMS / ACARS etc.) / Issue (Network Issue / Slow Response): _
-• Failure Start Time: _ & System Restoration Time: _
+• System Affected (FM Mobile, BMS, ACARS etc.) (e.g. Network Issue / Slow Response): _
+• Failure Start Time & System Restoration Time: _
 • Fallback / Manual Procedure (if any): _`
     },
     "Others": {
+        path: "Select the field that correspond to the incident type",
         template: `Others
 
 • Timeline / Description: _
@@ -1064,11 +1059,14 @@ const irrPresets = {
 function onIrrCaseChange() {
     let val = document.getElementById('irrCaseSelect').value;
     let textarea = document.getElementById('standardTimeline');
+    let pathInput = document.getElementById('categoryPathGuide');
 
     if (val === 'NIL') {
         textarea.value = "";
+        pathInput.value = "";
     } else if (irrPresets[val]) {
         textarea.value = irrPresets[val].template;
+        pathInput.value = irrPresets[val].path;
     }
 }
 
@@ -1243,7 +1241,7 @@ function renderFlightTable() {
         tr.innerHTML = `
             <td><b>CX${flt}</b></td>
             <td><input type="text" value="${destVal}" id="table_dest_${flt}" onchange="updateFlightEntry('${flt}')" style="padding:4px;"></td>
-            <td><input type="text" value="${stdVal}" id="table_std_${flt}" onchange="updateFlightEntry('${flt}')" style="padding:4px;"></td>
+            <td><input type="text" value="${stdVal}" id="table_std_${flt}" maxlength="4" inputmode="numeric" oninput="formatTimeInput(this)" onchange="updateFlightEntry('${flt}')" style="padding:4px;"></td>
             <td><button type="button" class="btn btn-small btn-danger" onclick="deleteFlight('${flt}')" style="padding:4px 6px;">Delete</button></td>
         `;
         tbody.appendChild(tr);
@@ -1412,7 +1410,7 @@ function addDelayRow(codeVal = "", minVal = "") {
 
     row.innerHTML = `
         <input type="text" list="${dlId}" id="delayCode_${delayRowCount}" value="${codeVal}" placeholder="" style="text-transform:uppercase; flex:1;" oninput="validateDelayCode(this)">
-        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" placeholder="" style="flex:1;" oninput="updateDelayCountdown()" onblur="formatDelayMinutes(this)">
+        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" maxlength="4" inputmode="numeric" placeholder="" style="flex:1;" oninput="formatTimeInput(this)" onchange="updateDelayCountdown()" onblur="formatDelayMinutes(this)">
         <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('delayRow_${delayRowCount}').remove(); document.getElementById('${dlId}').remove(); updateDelayCountdown();" style="flex:0.8;">✕</button>
     `;
     container.appendChild(row);
