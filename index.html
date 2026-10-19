@@ -380,6 +380,13 @@
             opacity: 0.9;
         }
 
+        .btn:disabled {
+            background-color: #555 !important;
+            color: #aaa !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
         .btn-small {
             padding: 8px 12px;
             font-size: 13px;
@@ -548,7 +555,7 @@
         <h1>eARS Report Generator</h1>
         <div class="subtitle">
             <span class="boxed-badge">By Bump Cap 🧢</span>
-            <span class="boxed-badge version-badge">Version 0.5</span>
+            <span class="boxed-badge version-badge">Version 0.7</span>
         </div>
     </div>
 
@@ -728,11 +735,11 @@
 
         <div class="form-group-full" style="margin-top: 15px;">
             <label>eARS Category Path Guide</label>
-            <input type="text" id="categoryPathGuide" value="" readonly style="background-color: var(--fieldset-bg) !important; font-weight: bold; color: var(--cx-green) !important;">
+            <input type="text" id="categoryPathGuide" value="" readonly style="background-color: var(--fieldset-bg) !important; font-weight: bold; color: var(--cx-green) !important; font-size: 12px; padding: 6px 10px;">
         </div>
 
         <div class="action-buttons">
-            <button type="button" class="btn" onclick="generateReport()">Generate & Copy Report</button>
+            <button type="button" class="btn" id="generateBtn" onclick="generateReport()">Generate & Copy Report</button>
             <a href="https://ears.cathaypacific.com/flight-file" target="_blank" class="btn btn-ears">🔗 eARS</a>
         </div>
     </form>
@@ -810,7 +817,6 @@ function initTheme() {
     document.getElementById('themeToggleBtn').innerText = savedTheme === 'dark' ? '☀️ Day' : '🌙 Night';
 }
 
-// 智慧時間格式化工具（輸入時自動過濾非數字，限制 4 位數並對齊）
 function formatTimeInput(input) {
     let val = input.value.replace(/\D/g, '').substring(0, 4);
     input.value = val;
@@ -927,11 +933,11 @@ function onStdChange() {
     updateCalculations();
 }
 
-// 16個 IRR Cases（全部 OR 改成 /）
+// 16個 IRR Cases
 const irrPresets = {
     "Baggage Reconciliation": {
         path: "Ramp Services > Apron Related Issues > Baggage Reconciliation",
-        template: `Baggage Reconciliation (Missing / Sick / As Per Airline’s Request) 
+        template: `Baggage Reconciliation
 
 • Time Received Info: _
 • Offload Start Time (Discharge: _A / _A – FWD/AFT Hold): _
@@ -1370,12 +1376,21 @@ function updateDelayCountdown() {
 
     let remaining = targetDiff - allocatedTotal;
     let badge = document.getElementById('delayCountdownBadge');
+    let generateBtn = document.getElementById('generateBtn');
+
     if (badge) {
-        badge.innerText = `Remaining: ${remaining} mins`;
-        if (remaining === 0) {
-            badge.style.color = "#66cdaa";
-        } else {
+        if (remaining > 0) {
+            badge.innerText = `Remaining: +${remaining} mins`;
             badge.style.color = "#d9534f";
+            generateBtn.disabled = false;
+        } else if (remaining === 0) {
+            badge.innerText = `Remaining: 0 mins`;
+            badge.style.color = "#66cdaa";
+            generateBtn.disabled = false;
+        } else {
+            badge.innerText = `Remaining: ${remaining} mins [ERROR: OVER-ALLOCATED]`;
+            badge.style.color = "#c0392b";
+            generateBtn.disabled = true;
         }
     }
 }
@@ -1511,7 +1526,7 @@ function generateReport() {
             let m = parseInt(minInput.value.trim(), 10);
 
             if (!delayCodesDb.includes(code)) {
-                alert(`Delay Code [${code}] is not valid in Database!`);
+                alert(`Error: Delay Code [${code}] is invalid!`);
                 return;
             }
             if (!isNaN(m)) allocatedTotal += m;
@@ -1519,7 +1534,7 @@ function generateReport() {
     }
 
     if (targetDiff > 0 && allocatedTotal !== targetDiff) {
-        alert(`Total delay minutes (${allocatedTotal} mins) must exactly match ATD vs STD delay (${targetDiff} mins)!`);
+        alert(`Error: Total allocated delay minutes (${allocatedTotal} mins) must match ATD vs STD delay (${targetDiff} mins)!`);
         return;
     }
 
