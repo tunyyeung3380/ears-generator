@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>eARS Report Generator v0.2</title>
+    <title>eARS Report Generator v0.5</title>
     <style>
         :root {
             --cx-green: #006564;
@@ -270,7 +270,6 @@
             box-shadow: 0 0 4px rgba(0, 101, 100, 0.3);
         }
 
-        /* 下拉式日期選單群組樣式 */
         .date-selects-group {
             display: flex;
             gap: 4px;
@@ -283,9 +282,9 @@
 
         textarea {
             resize: vertical;
-            height: 120px;
+            height: 140px;
             font-family: inherit;
-            min-height: 90px;
+            min-height: 100px;
         }
 
         .prefix-input-group {
@@ -549,7 +548,7 @@
         <h1>eARS Report Generator</h1>
         <div class="subtitle">
             <span class="boxed-badge">By Bump Cap 🧢</span>
-            <span class="boxed-badge version-badge">Version 0.2</span>
+            <span class="boxed-badge version-badge">Version 1.0 </span>
         </div>
     </div>
 
@@ -573,8 +572,8 @@
                     <label>Date (DD / MMM / YY)</label>
                     <div class="date-selects-group">
                         <select id="dateDD" onchange="onDateChange()"></select>
-                        <select id="dateMMM" onchange="onDateChange()"></select>
-                        <select id="dateYY" onchange="onDateChange()"></select>
+                        <select id="dateMMM" onchange="onMonthChange()"></select>
+                        <select id="dateYY" onchange="onYearChange()"></select>
                     </div>
                     <input type="hidden" id="flightDate" value="">
                 </div>
@@ -693,7 +692,30 @@
         </fieldset>
 
         <fieldset id="sectionTimeline" class="simple-mode-hidden">
-            <legend>IRR description And Handling</legend>
+            <legend>IRR Description And Handling</legend>
+            <div class="form-group-full">
+                <label>Select IRR Case Preset</label>
+                <select id="irrCaseSelect" onchange="onIrrCaseChange()">
+                    <option value="NIL">NIL</option>
+                    <option value="Baggage Reconciliation">1. Baggage Reconciliation (Missing / Sick / As Per Airline’s Request)</option>
+                    <option value="Cargo Loading">2. Cargo Loading</option>
+                    <option value="Technical / Aircraft Maintenance">3. Technical / Aircraft Maintenance</option>
+                    <option value="Ground Return / Air Return">4. Ground Return / Air Return</option>
+                    <option value="Passenger Connection / Transfer">5. Passenger Connection / Transfer</option>
+                    <option value="Inflight Passenger Issue">6. Inflight Passenger Issue</option>
+                    <option value="Crew Issue">7. Crew Issue</option>
+                    <option value="Cabin Issue">8. Cabin Issue</option>
+                    <option value="Cabin Cleaning">9. Cabin Cleaning</option>
+                    <option value="Catering">10. Catering</option>
+                    <option value="Fueling">11. Fueling</option>
+                    <option value="Baggage / Cargo Incident">12. Baggage / Cargo</option>
+                    <option value="Airport Facility">13. Airport Facility</option>
+                    <option value="Loading Equipment">14. Loading Equipment</option>
+                    <option value="System Failure">15. System Failure</option>
+                    <option value="Others">16. Others</option>
+                </select>
+            </div>
+
             <div class="form-group-full">
                 <textarea id="standardTimeline" placeholder="Enter IRR description and handling..."></textarea>
             </div>
@@ -836,27 +858,80 @@ function setLandingForm(val) {
 
 const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
+function getDaysInMonth(monthIndex, year2Digit) {
+    let fullYear = 2000 + parseInt(year2Digit, 10);
+    return new Date(fullYear, monthIndex + 1, 0).getDate();
+}
+
 function initDateSelectors() {
     let ddSelect = document.getElementById('dateDD');
     let mmmSelect = document.getElementById('dateMMM');
     let yySelect = document.getElementById('dateYY');
 
+    mmmSelect.innerHTML = '';
+    months.forEach((m, idx) => {
+        mmmSelect.innerHTML += `<option value="${idx}">${m}</option>`;
+    });
+
+    yySelect.innerHTML = '';
+    let currentFullYr = new Date().getFullYear();
+    let startYr = currentFullYr;
+    let endYr = currentFullYr + 9;
+    for (let y = startYr; y <= endYr; y++) {
+        let yStr = String(y).slice(-2);
+        yySelect.innerHTML += `<option value="${yStr}">${yStr}</option>`;
+    }
+
+    let today = new Date();
+    yySelect.value = String(today.getFullYear()).slice(-2);
+    mmmSelect.value = today.getMonth();
+
+    updateDaysDropdown();
+    ddSelect.value = String(today.getDate()).padStart(2, '0');
+
+    onDateChange();
+}
+
+function updateDaysDropdown() {
+    let ddSelect = document.getElementById('dateDD');
+    let mmmSelect = document.getElementById('dateMMM');
+    let yySelect = document.getElementById('dateYY');
+
+    let currentSelectedDay = parseInt(ddSelect.value, 10) || 1;
+    let monthIdx = parseInt(mmmSelect.value, 10);
+    let yyStr = yySelect.value;
+
+    let totalDays = getDaysInMonth(monthIdx, yyStr);
+
     ddSelect.innerHTML = '';
-    for (let i = 1; i <= 31; i++) {
+    for (let i = 1; i <= totalDays; i++) {
         let dStr = String(i).padStart(2, '0');
         ddSelect.innerHTML += `<option value="${dStr}">${dStr}</option>`;
     }
 
-    mmmSelect.innerHTML = '';
-    months.forEach(m => {
-        mmmSelect.innerHTML += `<option value="${m}">${m}</option>`;
-    });
+    if (currentSelectedDay <= totalDays) {
+        ddSelect.value = String(currentSelectedDay).padStart(2, '0');
+    } else {
+        ddSelect.value = String(totalDays).padStart(2, '0');
+    }
+}
 
-    yySelect.innerHTML = '';
-    let currentYr = new Date().getFullYear() % 100;
-    for (let i = 0; i < 5; i++) {
-        let yStr = String(currentYr + i).padStart(2, '0');
-        yySelect.innerHTML += `<option value="${yStr}">${yStr}</option>`; }  let today = new Date(); ddSelect.value = String(today.getDate()).padStart(2, '0'); mmmSelect.value = months[today.getMonth()]; yySelect.value = String(currentYr).padStart(2, '0');  onDateChange(); }  function onDateChange() { let dd = document.getElementById('dateDD').value; let mmm = document.getElementById('dateMMM').value; let yy = document.getElementById('dateYY').value; document.getElementById('flightDate').value = `${dd}${mmm}${yy}`;
+function onMonthChange() {
+    updateDaysDropdown();
+    onDateChange();
+}
+
+function onYearChange() {
+    updateDaysDropdown();
+    onDateChange();
+}
+
+function onDateChange() {
+    let dd = document.getElementById('dateDD').value;
+    let mmmIdx = parseInt(document.getElementById('dateMMM').value, 10);
+    let mmmStr = months[mmmIdx];
+    let yy = document.getElementById('dateYY').value;
+    document.getElementById('flightDate').value = `${dd}${mmmStr}${yy}`;
 }
 
 function onStdChange() {
@@ -864,6 +939,137 @@ function onStdChange() {
     document.getElementById('etd').value = std;
     document.getElementById('atd').value = std;
     updateCalculations();
+}
+
+// 16個 IRR cases 的時間線範本（Case Heading 後方嚴格隔一行，時間單底線 _）
+const irrPresets = {
+    "Baggage Reconciliation": {
+        template: `Baggage Reconciliation (Missing / Sick / As Per Airline’s Request)
+
+• Time Received Info: _
+• Offload Start Time: _
+• Discharge: _A / _A – FWD / AFT / BULK Hold
+• Bag Located / Reload Start Time: _
+• Reload Completion Time: _`
+    },
+    "Cargo Loading": {
+        template: `Cargo Loading
+
+• Loading Start & End Time: _ to _ (Full team / AB team / Extra manpower: _ )
+• Delay Cause / Descriptions (PDU Inop, Delay Manpower, Human Error etc.): _`
+    },
+    "Technical / Aircraft Maintenance": {
+        template: `Technical / Aircraft Maintenance
+
+• Defect Discovery Time: _
+• Defect Details & Hold Boarding Reason (by Engineer / Captain / SSCM – update SEL and HOL): _
+• Rectification Action Taken: _
+• Mechanic Arrival Time: _
+• Defect Clearance Time (Fixed / Aircraft Released): _
+• MEL Ref No. (if any): _`
+    },
+    "Ground Return / Air Return": {
+        template: `Ground Return / Air Return
+
+• Time Received Info: _
+• Reason for Ground / Air Return (Technical, Medical Case etc.): _
+• Aircraft Back on Stand / Door Reopened Time: _
+• Disembark Pax & AVESCO Arrive Time: _
+• Description (Ramp handling only): _`
+    },
+    "Passenger Connection / Transfer": {
+        template: `Passenger Connection / Transfer
+
+• Inbound Flight No. & ATA: CX_ ATA: _ from Bay: _
+• Connecting Passengers / Bags Affected: _C / _W / _Y / _bags
+• Arrival Time of Passengers at Gate: _
+• Arrival Time of Baggage at Shipside: At _, _ bags with _A arrive at shipside (Shortship: _ bags)`
+    },
+    "Inflight Passenger Issue": {
+        template: `Inflight Passenger Issue
+
+• Passenger Security No. / Seat No.: _
+• Incident Description (Disruptive Behaviour, Medical, Cancel Flight etc.): _
+• Timeline (Reported: _ / Resolved: _) & Actions Taken (Ramp handling only): _`
+    },
+    "Crew Issue": {
+        template: `Crew Issue
+
+• Issue Type (Late Arrival / Prolonged Preparation / Request / Clarification etc.): _
+• Timeline / Description: _`
+    },
+    "Cabin Issue": {
+        template: `Cabin Issue
+
+• Defect Location & Description (IFE, Seat, Overhead, Galley, Lavatory etc.): _
+• Timeline: _
+• Actions Taken: _`
+    },
+    "Cabin Cleaning": {
+        template: `Cabin Cleaning
+
+• Cleaning Start & Finish Times: _ to _
+• Manpower Details: _`
+    },
+    "Catering": {
+        template: `Catering
+
+• Late Delivery / Loading Start & Completion Times: _ to _
+• Missing Items (Entrée, Special Meals, Amenity etc.): _`
+    },
+    "Fueling": {
+        template: `Fueling
+
+• Incident Description (Late fuel truck, Fallback Manual Slip, Slow Flow etc.): _
+• Timeline / Description:
+  - Pre Fuel Time: _
+  - S/B Fuel Time: _
+  - Final Fuel Time: _`
+    },
+    "Baggage / Cargo Incident": {
+        template: `Baggage / Cargo Incident
+
+• Incident Description (Online or Local: Late Delivery, Damage etc.): _
+• Timeline / Description: _`
+    },
+    "Airport Facility": {
+        template: `Airport Facility
+
+• Facility Affected (PBB / Pax Step / Mobile Stair / GPU / PCA Failure etc.): _
+• Timeline / Description: _`
+    },
+    "Loading Equipment": {
+        template: `Loading Equipment
+
+• Facility Affected (LDL, Conveyor Belt, Tractor etc.) & Equipment No.: _
+• Breakdown Period: from _ to _
+• Reporting Time to HAS Control / DAS / HOL: _
+• Problem Solved Time: _ (Equipment replaced / reset by maintenance at _)`
+    },
+    "System Failure": {
+        template: `System Failure
+
+• System Affected (FM Mobile / BMS / ACARS etc.) / Issue (Network Issue / Slow Response): _
+• Failure Start Time: _ & System Restoration Time: _
+• Fallback / Manual Procedure (if any): _`
+    },
+    "Others": {
+        template: `Others
+
+• Timeline / Description: _
+• Impact (if any) (e.g. BCP): _`
+    }
+};
+
+function onIrrCaseChange() {
+    let val = document.getElementById('irrCaseSelect').value;
+    let textarea = document.getElementById('standardTimeline');
+
+    if (val === 'NIL') {
+        textarea.value = "";
+    } else if (irrPresets[val]) {
+        textarea.value = irrPresets[val].template;
+    }
 }
 
 const DEFAULT_FLIGHTS_DB = {
@@ -1371,6 +1577,8 @@ function generateReport() {
     let reportText = "";
     let separator = "————————————————————————————————————————————————————————";
 
+    let timelineContent = document.getElementById('standardTimeline').value.trim() || 'NIL';
+
     if (currentMode === 'simple') {
         reportText = `• Crew boarding access point: ${crewAccessStr}
 
@@ -1388,7 +1596,6 @@ ${remarks}`;
     } else {
         let totalPax = document.getElementById('totalPax').value.trim();
         let landingForm = document.getElementById('landingFormVal').value;
-        let timeline = document.getElementById('standardTimeline').value.trim();
 
         let delaysArr = [];
         for (let i = 1; i <= delayRowCount; i++) {
@@ -1429,7 +1636,9 @@ ${separator}
 
 IRR description And Handling
 
-${timeline}
+${timelineContent}
+
+${separator}
 
 REMARKS
 ${remarks}`;
