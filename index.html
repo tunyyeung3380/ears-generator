@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>eARS Report Generator v0.1</title>
+    <title>eARS Report Generator v0.2</title>
     <style>
         :root {
             --cx-green: #006564;
@@ -80,7 +80,7 @@
         .subtitle {
             color: #888;
             font-size: 12px;
-            margin-top: 2px;
+            margin-top: 4px;
             font-weight: 500;
             display: flex;
             justify-content: center;
@@ -210,12 +210,13 @@
             padding: 10px 12px;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            font-size: 15px; /* Prevent auto-zoom on iOS */
+            font-size: 15px;
             width: 100%;
             box-sizing: border-box;
             background-color: var(--input-bg);
             color: var(--text-color);
             min-height: 44px;
+            max-width: 100%;
         }
 
         input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus, input[type="date"]:focus {
@@ -226,9 +227,9 @@
 
         textarea {
             resize: vertical;
-            height: 100px;
+            height: 120px;
             font-family: inherit;
-            min-height: 80px;
+            min-height: 90px;
         }
 
         .prefix-input-group {
@@ -254,7 +255,6 @@
             border-radius: 0 6px 6px 0;
         }
 
-        /* 專門針對 Gate Items 與 Offload 平排與數字加減按鈕設計 */
         .dynamic-row {
             display: flex;
             gap: 8px;
@@ -270,14 +270,14 @@
             background-color: var(--input-bg);
             overflow: hidden;
             min-height: 44px;
-            flex: 1;
+            flex: 1.2;
         }
 
         .qty-btn {
             background-color: #e0e0e0;
             color: #333;
             border: none;
-            width: 40px;
+            width: 38px;
             font-weight: bold;
             font-size: 16px;
             cursor: pointer;
@@ -321,6 +321,7 @@
             align-items: center;
             justify-content: center;
             width: 100%;
+            text-decoration: none;
         }
 
         .btn:hover {
@@ -341,6 +342,23 @@
         .btn-secondary {
             background-color: #7f8c8d;
             color: white;
+        }
+
+        .btn-ears {
+            background-color: #16a085;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .action-buttons {
+                flex-direction: column;
+            }
         }
 
         .time-hint {
@@ -475,8 +493,8 @@
     <div class="header-center">
         <h1>eARS Report Generator</h1>
         <div class="subtitle">
-            <span>By Bump Cap</span>
-            <span class="version-badge">Version 0.1</span>
+            <span>By Bump Cap 🧢</span>
+            <span class="version-badge">Version 0.2</span>
         </div>
     </div>
 
@@ -566,7 +584,7 @@
             <div class="form-row">
                 <div class="form-group-full">
                     <label>Incident / Remark (if any)</label>
-                    <input type="text" id="crewIncident">
+                    <input type="text" id="crewIncident" placeholder="">
                 </div>
             </div>
 
@@ -613,19 +631,20 @@
         </fieldset>
 
         <fieldset id="sectionTimeline" class="simple-mode-hidden">
-            <legend>Ground Timeline Breakdown</legend>
+            <legend>IRR description And Handling</legend>
             <div class="form-group-full">
-                <textarea id="standardTimeline"></textarea>
+                <textarea id="standardTimeline" placeholder="Enter IRR description and handling..."></textarea>
             </div>
         </fieldset>
 
         <div class="form-group-full">
             <label>REMARKS</label>
-            <textarea id="remarks" style="height: 60px;"></textarea>
+            <textarea id="remarks" style="height: 60px;" placeholder=""></textarea>
         </div>
 
-        <div style="text-align: center; margin-top: 20px;">
+        <div class="action-buttons">
             <button type="button" class="btn" onclick="generateReport()">Generate & Copy Report</button>
+            <a href="https://ears.cathaypacific.com/flight-file" target="_blank" class="btn btn-ears">🔗 eARS</a>
         </div>
     </form>
 
@@ -913,7 +932,7 @@ const DEFAULT_DELAY_CODES = [
 ];
 
 const GATE_ITEM_OPTIONS = ["GB", "BBS", "WCMP", "WALKER", "CARSEAT", "OPENBAG", "ID BAG", "WCLB", "WCBD", "WCBW", "OTHERS"];
-const OFFLOAD_REASONS = ["Payload Problem", "Space Problem", "Trimming Problem", "Aircraft Defects", "On Time Performance", "Shipment Damaged", "ULD Damaged", "Others"];
+const OFFLOAD_REASONS = ["Payload Problem", "Space Problem", "Trimming Problem", "Aircraft Defects", "Manpower", "On Time Performance", "Shipment Damaged", "ULD Damaged", "Others"];
 
 let flightsDb = {};
 let delayCodesDb = [];
@@ -1060,11 +1079,10 @@ function addDelayRow(codeVal = "", minVal = "") {
     let row = document.createElement('div');
     row.className = 'dynamic-row';
     row.id = `delayRow_${delayRowCount}`;
-    row.style.marginBottom = '8px';
     row.innerHTML = `
-        <input type="text" list="delayCodesDatalist" id="delayCode_${delayRowCount}" value="${codeVal}" placeholder="Code" style="text-transform:uppercase; flex:1;">
-        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" placeholder="Min" style="flex:1;">
-        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('delayRow_${delayRowCount}').remove()" style="flex:0.8;">✕</button>
+        <input type="text" list="delayCodesDatalist" id="delayCode_${delayRowCount}" value="${codeVal}" placeholder="" style="text-transform:uppercase;">
+        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" placeholder="">
+        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('delayRow_${delayRowCount}').remove()">✕ Remove</button>
     `;
     container.appendChild(row);
 }
@@ -1076,9 +1094,7 @@ function addGateItemRow(itemVal = "GB", countVal = "") {
     let row = document.createElement('div');
     row.className = 'dynamic-row';
     row.id = `gateRow_${gateRowCount}`;
-    row.style.marginBottom = '8px';
     let optionsHtml = GATE_ITEM_OPTIONS.map(opt => `<option value="${opt}" ${opt === itemVal ? 'selected' : ''}>${opt}</option>`).join('');
-    
     let safeCount = (countVal !== "" && !isNaN(countVal) && parseInt(countVal) >= 0) ? parseInt(countVal) : "";
 
     row.innerHTML = `
@@ -1134,12 +1150,11 @@ function addOffloadRow(cargoVal = "", reasonVal = "Payload Problem", customReaso
     let row = document.createElement('div');
     row.className = 'dynamic-row';
     row.id = `offloadRow_${offloadRowCount}`;
-    row.style.marginBottom = '8px';
     let reasonOptions = OFFLOAD_REASONS.map(r => `<option value="${r}" ${r === reasonVal ? 'selected' : ''}>${r}</option>`).join('');
     row.innerHTML = `
-        <input type="text" id="offloadCargo_${offloadRowCount}" value="${cargoVal}" placeholder="ULD / Cargo" style="flex: 1.2;">
+        <input type="text" id="offloadCargo_${offloadRowCount}" value="${cargoVal}" placeholder="" style="flex: 1.2;">
         <select id="offloadReason_${offloadRowCount}" onchange="checkOffloadReason(${offloadRowCount})" style="flex: 1.2;">${reasonOptions}</select>
-        <input type="text" id="offloadCustom_${offloadRowCount}" value="${customReason}" placeholder="Reason" style="flex: 1.2; ${reasonVal === 'Others' ? 'display:block;' : 'display:none;'}">
+        <input type="text" id="offloadCustom_${offloadRowCount}" value="${customReason}" placeholder="" style="flex: 1.2; ${reasonVal === 'Others' ? 'display:block;' : 'display:none;'}">
         <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('offloadRow_${offloadRowCount}').remove()" style="flex: 0.6; min-width: 44px;">✕</button>
     `;
     container.appendChild(row);
@@ -1162,9 +1177,15 @@ function generateReport() {
     let tco = document.getElementById('tco').value.trim();
     let sel = document.getElementById('sel').value.trim();
     let crewAccess = document.getElementById('crewAccessVal').value;
+    let crewIncident = document.getElementById('crewIncident').value.trim();
     let totalBag = document.getElementById('totalBag').value.trim();
     let bagNotLoaded = document.getElementById('bagNotLoaded').value.trim();
     let remarks = document.getElementById('remarks').value.trim() || 'NIL';
+
+    let crewAccessStr = crewAccess;
+    if (crewIncident) {
+        crewAccessStr += ` (${crewIncident})`;
+    }
 
     let gateArr = [];
     for (let i = 1; i <= gateRowCount; i++) {
@@ -1200,15 +1221,15 @@ function generateReport() {
     let reportText = "";
 
     if (currentMode === 'simple') {
-        reportText = `Crew boarding access point: ${crewAccess}
+        reportText = `• Crew boarding access point: ${crewAccessStr}
 
-- Gate collected item: ${gateStr}
+• Gate collected item: ${gateStr}
 
-- Total bag onboard: ${totalBag}
+• Total bag onboard: ${totalBag}
 
-- Bag not loaded: ${bagNotLoaded}
+• Bag not loaded: ${bagNotLoaded}
 
-- Offload cargo & reason: ${offloadStr}
+• Offload cargo & reason: ${offloadStr}
 
 
 REMARKS
@@ -1237,20 +1258,25 @@ Delay Code: ${delaysStr}
 
 TCO: ${tco}         SEL: ${sel}
 
-Crew boarding access point: ${crewAccess}
+——————————————————————————————————————
 
-- Gate collected item: ${gateStr}
+• Crew boarding access point: ${crewAccessStr}
 
-- Total pax: ${totalPax}
+• Gate collected item: ${gateStr}
 
-- Total bag onboard: ${totalBag}
+• Total pax: ${totalPax}
 
-- Bag not loaded: ${bagNotLoaded}
+• Total bag onboard: ${totalBag}
 
-- Offload cargo & reason: ${offloadStr}
+• Bag not loaded: ${bagNotLoaded}
 
-- Landing form: ${landingForm}
+• Offload cargo & reason: ${offloadStr}
 
+• Landing form: ${landingForm}
+
+——————————————————————————————————————
+
+IRR description And Handling
 
 ${timeline}
 
