@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -57,6 +57,7 @@
         .top-bar {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
             margin-bottom: 12px;
         }
 
@@ -80,21 +81,30 @@
         .subtitle {
             color: #888;
             font-size: 12px;
-            margin-top: 4px;
+            margin-top: 6px;
             font-weight: 500;
             display: flex;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
+        }
+
+        .boxed-badge {
+            border: 1px solid var(--border-color);
+            background-color: var(--fieldset-bg);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            color: var(--text-color);
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
         }
 
         .version-badge {
             background-color: var(--cx-green);
             color: white;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
+            border-color: var(--cx-green);
         }
 
         .mode-selector {
@@ -164,6 +174,7 @@
             padding: 12px 14px;
             margin-bottom: 16px;
             background: var(--fieldset-bg);
+            position: relative;
         }
 
         legend {
@@ -174,6 +185,26 @@
             border-radius: 4px;
             border: 1px solid var(--border-color);
             font-size: 13px;
+        }
+
+        .legend-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .legend-title {
+            font-weight: bold;
+            color: var(--cx-green);
+            background: var(--cx-light);
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+            display: inline-block;
         }
 
         .form-row {
@@ -213,16 +244,41 @@
             font-size: 15px;
             width: 100%;
             box-sizing: border-box;
-            background-color: var(--input-bg);
-            color: var(--text-color);
+            background-color: var(--input-bg) !important;
+            color: var(--text-color) !important;
             min-height: 44px;
             max-width: 100%;
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus,
+        textarea:-webkit-autofill,
+        textarea:-webkit-autofill:hover,
+        textarea:-webkit-autofill:focus,
+        select:-webkit-autofill,
+        select:-webkit-autofill:hover,
+        select:-webkit-autofill:focus {
+            -webkit-text-fill-color: var(--text-color) !important;
+            -webkit-box-shadow: 0 0 0px 1000px var(--input-bg) inset !important;
+            transition: background-color 5000s ease-in-out 0s;
         }
 
         input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
             border-color: var(--cx-green);
             outline: none;
             box-shadow: 0 0 4px rgba(0, 101, 100, 0.3);
+        }
+
+        /* 下拉式日期選單群組樣式 */
+        .date-selects-group {
+            display: flex;
+            gap: 4px;
+        }
+        .date-selects-group select {
+            text-align: center;
+            padding: 10px 2px !important;
+            cursor: pointer;
         }
 
         textarea {
@@ -274,8 +330,8 @@
         }
 
         .qty-btn {
-            background-color: #e0e0e0;
-            color: #333;
+            background-color: #333;
+            color: #fff;
             border: none;
             width: 38px;
             font-weight: bold;
@@ -286,11 +342,6 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-        }
-
-        [data-theme="dark"] .qty-btn {
-            background-color: #333;
-            color: #fff;
         }
 
         .qty-btn:active {
@@ -304,6 +355,8 @@
             padding: 0 !important;
             min-height: 44px !important;
             width: 100%;
+            background-color: transparent !important;
+            color: var(--text-color) !important;
         }
 
         .btn {
@@ -361,11 +414,17 @@
             }
         }
 
-        .time-hint {
-            font-size: 11px;
-            color: var(--cx-green);
-            margin-top: 3px;
+        .time-badge {
+            display: inline-block;
+            border: 1px solid var(--border-color);
+            background-color: var(--fieldset-bg);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #d9534f;
             font-weight: bold;
+            margin-top: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         pre {
@@ -476,25 +535,21 @@
             .form-group {
                 min-width: 100%;
             }
-            .mode-tab {
-                font-size: 12px;
-                padding: 10px 4px;
-            }
         }
     </style>
 </head>
-<body data-theme="light">
+<body data-theme="dark">
 
 <div class="container">
     <div class="top-bar">
-        <button type="button" class="btn btn-small btn-secondary" onclick="toggleTheme()" id="themeToggleBtn">🌙 Night</button>
+        <button type="button" class="btn btn-small btn-secondary" onclick="toggleTheme()" id="themeToggleBtn">☀️ Day</button>
     </div>
 
     <div class="header-center">
         <h1>eARS Report Generator</h1>
         <div class="subtitle">
-            <span>By Bump Cap 🧢</span>
-            <span class="version-badge">Version 0.2</span>
+            <span class="boxed-badge">By Bump Cap 🧢</span>
+            <span class="boxed-badge version-badge">Version 0.2</span>
         </div>
     </div>
 
@@ -515,8 +570,13 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Date (DDMMMYY)</label>
-                    <input type="text" id="flightDate" value="" placeholder="19OCT26" style="text-transform: uppercase;">
+                    <label>Date (DD / MMM / YY)</label>
+                    <div class="date-selects-group">
+                        <select id="dateDD" onchange="onDateChange()"></select>
+                        <select id="dateMMM" onchange="onDateChange()"></select>
+                        <select id="dateYY" onchange="onDateChange()"></select>
+                    </div>
+                    <input type="hidden" id="flightDate" value="">
                 </div>
                 <div class="form-group">
                     <label>Destination</label>
@@ -540,7 +600,7 @@
                 <div class="form-group">
                     <label>ATD (HHMM)</label>
                     <input type="text" id="atd" value="" oninput="updateCalculations()">
-                    <div id="atdCalc" class="time-hint"></div>
+                    <div id="atdCalc"></div>
                 </div>
             </div>
 
@@ -557,12 +617,15 @@
         </fieldset>
 
         <fieldset id="sectionDelayInfo" class="simple-mode-hidden">
-            <legend>Delay Information</legend>
-            <div id="delayCodesContainer"></div>
+            <div class="legend-container">
+                <span class="legend-title">Delay Information</span>
+                <span id="delayCountdownBadge" class="boxed-badge" style="font-size:11px; padding:2px 8px;">Remaining: 0 mins</span>
+            </div>
+            <div id="delayCodesContainer" style="margin-top: 6px;"></div>
             <div style="margin-top: 10px;">
                 <button type="button" class="btn btn-small btn-secondary" onclick="addDelayRow()">+ Add Delay Code</button>
             </div>
-            <div class="hint-text" style="margin-top: 8px;">如果沒有 Delay，請保持留空（將自動輸出為 NIL）。</div>
+            <div class="hint-text" style="margin-top: 8px;">If no delay, leave empty (Output will be NIL).</div>
         </fieldset>
 
         <fieldset>
@@ -616,7 +679,7 @@
                 <div style="margin-top: 5px;">
                     <button type="button" class="btn btn-small btn-secondary" onclick="addOffloadRow()">+ Add Offload Item</button>
                 </div>
-                <div class="hint-text">如果沒有 Offload，請保持空白。</div>
+                <div class="hint-text">If no offload, leave blank.</div>
             </div>
 
             <div class="form-group-full simple-mode-hidden" id="groupLandingForm" style="margin-top: 10px;">
@@ -662,7 +725,7 @@
 <div class="modal" id="dbModal">
     <div class="modal-content">
         <h2 style="margin-top:0; color: var(--cx-green); font-size: 16px;">Manage Flight Database</h2>
-        <p class="hint-text" style="margin-bottom: 12px;">直接修改航班或時間，或使用上方快速新增。關閉視窗自動儲存！</p>
+        <p class="hint-text" style="margin-bottom: 12px;">Edit flights or STD directly below. Auto-saved on exit!</p>
         
         <div style="display: flex; gap: 6px; margin-bottom: 12px; background: var(--fieldset-bg); padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); flex-wrap: wrap;">
             <input type="text" id="newFltNo" placeholder="Flt No" style="flex: 1; min-width: 80px;">
@@ -715,7 +778,7 @@ function toggleTheme() {
 }
 
 function initTheme() {
-    let savedTheme = localStorage.getItem('cx_theme') || 'light';
+    let savedTheme = localStorage.getItem('cx_theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
     document.getElementById('themeToggleBtn').innerText = savedTheme === 'dark' ? '☀️ Day' : '🌙 Night';
 }
@@ -771,13 +834,29 @@ function setLandingForm(val) {
     });
 }
 
-function initTodayDate() {
-    let today = new Date();
-    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-    let day = String(today.getDate()).padStart(2, '0');
-    let mon = months[today.getMonth()];
-    let yr = String(today.getFullYear()).slice(-2);
-    document.getElementById('flightDate').value = `${day}${mon}${yr}`;
+const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+function initDateSelectors() {
+    let ddSelect = document.getElementById('dateDD');
+    let mmmSelect = document.getElementById('dateMMM');
+    let yySelect = document.getElementById('dateYY');
+
+    ddSelect.innerHTML = '';
+    for (let i = 1; i <= 31; i++) {
+        let dStr = String(i).padStart(2, '0');
+        ddSelect.innerHTML += `<option value="${dStr}">${dStr}</option>`;
+    }
+
+    mmmSelect.innerHTML = '';
+    months.forEach(m => {
+        mmmSelect.innerHTML += `<option value="${m}">${m}</option>`;
+    });
+
+    yySelect.innerHTML = '';
+    let currentYr = new Date().getFullYear() % 100;
+    for (let i = 0; i < 5; i++) {
+        let yStr = String(currentYr + i).padStart(2, '0');
+        yySelect.innerHTML += `<option value="${yStr}">${yStr}</option>`; }  let today = new Date(); ddSelect.value = String(today.getDate()).padStart(2, '0'); mmmSelect.value = months[today.getMonth()]; yySelect.value = String(currentYr).padStart(2, '0');  onDateChange(); }  function onDateChange() { let dd = document.getElementById('dateDD').value; let mmm = document.getElementById('dateMMM').value; let yy = document.getElementById('dateYY').value; document.getElementById('flightDate').value = `${dd}${mmm}${yy}`;
 }
 
 function onStdChange() {
@@ -927,17 +1006,6 @@ function initDatabase() {
     flightsDb = savedFlights ? JSON.parse(savedFlights) : DEFAULT_FLIGHTS_DB;
     delayCodesDb = savedDelayCodes ? JSON.parse(savedDelayCodes) : DEFAULT_DELAY_CODES;
     document.getElementById('dbDelayCodesList').value = delayCodesDb.join(', ');
-    updateDatalist();
-}
-
-function updateDatalist() {
-    let dl = document.getElementById('delayCodesDatalist');
-    dl.innerHTML = '';
-    delayCodesDb.forEach(code => {
-        let opt = document.createElement('option');
-        opt.value = code;
-        dl.appendChild(opt);
-    });
 }
 
 function openDbModal() {
@@ -951,7 +1019,6 @@ function closeDbModal() {
         delayCodesDb = parsedCodes;
         localStorage.setItem('cx_flights_db', JSON.stringify(flightsDb));
         localStorage.setItem('cx_delay_codes_db', JSON.stringify(delayCodesDb));
-        updateDatalist();
         document.getElementById('dbModal').classList.remove('open');
         showToast("✅ Database saved successfully!");
     } catch (e) {
@@ -988,7 +1055,7 @@ function addNewFlightRow() {
     let dest = document.getElementById('newDest').value.trim();
     let std = document.getElementById('newStd').value.trim();
     if (!flt || !dest || !std) {
-        alert("請完整填寫 Flight No、Destination 與 STD！");
+        alert("Please fill Flight No, Destination and STD!");
         return;
     }
     flightsDb[flt] = { dest: dest, std: std };
@@ -999,21 +1066,20 @@ function addNewFlightRow() {
 }
 
 function deleteFlight(flt) {
-    if (confirm(`確定要刪除 CX${flt} 嗎？`)) {
+    if (confirm(`Are you sure to delete CX${flt}?`)) {
         delete flightsDb[flt];
         renderFlightTable();
     }
 }
 
 function resetDefaultDb() {
-    if (confirm("確定要重設回預設夏航季狀態嗎？")) {
+    if (confirm("Are you sure to reset to default?")) {
         localStorage.removeItem('cx_flights_db');
         localStorage.removeItem('cx_delay_codes_db');
         flightsDb = JSON.parse(JSON.stringify(DEFAULT_FLIGHTS_DB));
         delayCodesDb = JSON.parse(JSON.stringify(DEFAULT_DELAY_CODES));
         document.getElementById('dbDelayCodesList').value = delayCodesDb.join(', ');
         renderFlightTable();
-        updateDatalist();
         showToast("🔄 Database reset to default!");
     }
 }
@@ -1040,23 +1106,76 @@ function timeToMinutes(tStr) {
     return parseInt(tStr.substring(0, 2), 10) * 60 + parseInt(tStr.substring(2, 4), 10);
 }
 
-function calculateDiff(stdStr, targetStr) {
+function calculateDiffMinutes(stdStr, targetStr) {
     let stdMin = timeToMinutes(stdStr);
     let targetMin = timeToMinutes(targetStr);
-    if (stdMin === null || targetMin === null) return "";
-    let diff = targetMin - stdMin;
-    if (diff === 0) return "(0 mins)";
-    return diff > 0 ? `(+${diff} mins)` : `(${diff} mins)`;
+    if (stdMin === null || targetMin === null) return 0;
+    return targetMin - stdMin;
 }
 
 function updateCalculations() {
     let std = document.getElementById('std').value;
     let atd = document.getElementById('atd').value;
-    let diffText = calculateDiff(std, atd);
-    document.getElementById('atdCalc').innerText = diffText ? `ATD vs STD: ${diffText}` : '';
+    let diff = calculateDiffMinutes(std, atd);
+    let atdCalcDiv = document.getElementById('atdCalc');
+
+    if (diff > 0) {
+        atdCalcDiv.innerHTML = `<div class="time-badge">(+${diff} mins)</div>`;
+    } else {
+        atdCalcDiv.innerHTML = ``;
+    }
+    updateDelayCountdown();
 }
 
-// 將輸入的分鐘數精確轉為 HHMM 格式 (例如 75 -> 0115, 9 -> 0009)
+function validateDelayCode(input) {
+    let val = input.value.trim().toUpperCase();
+    let listId = input.getAttribute('list');
+    let dl = document.getElementById(listId);
+    if (!dl) return;
+    dl.innerHTML = '';
+
+    let matches = delayCodesDb.filter(code => code.startsWith(val));
+    matches.forEach(code => {
+        let opt = document.createElement('option');
+        opt.value = code;
+        dl.appendChild(opt);
+    });
+
+    if (val !== "" && !delayCodesDb.includes(val)) {
+        input.style.borderColor = "#c0392b";
+    } else {
+        input.style.borderColor = "var(--border-color)";
+    }
+    updateDelayCountdown();
+}
+
+function updateDelayCountdown() {
+    let std = document.getElementById('std').value;
+    let atd = document.getElementById('atd').value;
+    let targetDiff = calculateDiffMinutes(std, atd);
+    if (targetDiff < 0) targetDiff = 0;
+
+    let allocatedTotal = 0;
+    for (let i = 1; i <= delayRowCount; i++) {
+        let minInput = document.getElementById(`delayMin_${i}`);
+        if (minInput) {
+            let m = parseInt(minInput.value.trim(), 10);
+            if (!isNaN(m)) allocatedTotal += m;
+        }
+    }
+
+    let remaining = targetDiff - allocatedTotal;
+    let badge = document.getElementById('delayCountdownBadge');
+    if (badge) {
+        badge.innerText = `Remaining: ${remaining} mins`;
+        if (remaining === 0) {
+            badge.style.color = "#66cdaa";
+        } else {
+            badge.style.color = "#d9534f";
+        }
+    }
+}
+
 function formatDelayMinutes(input) {
     let val = input.value.trim();
     if (val === "" || isNaN(val)) return;
@@ -1064,6 +1183,7 @@ function formatDelayMinutes(input) {
     let hours = Math.floor(totalMins / 60);
     let mins = totalMins % 60;
     input.value = String(hours).padStart(2, '0') + String(mins).padStart(2, '0');
+    updateDelayCountdown();
 }
 
 let delayRowCount = 0;
@@ -1073,12 +1193,24 @@ function addDelayRow(codeVal = "", minVal = "") {
     let row = document.createElement('div');
     row.className = 'dynamic-row';
     row.id = `delayRow_${delayRowCount}`;
+    
+    let dlId = `delayList_${delayRowCount}`;
+    let datalist = document.createElement('datalist');
+    datalist.id = dlId;
+    delayCodesDb.forEach(code => {
+        let opt = document.createElement('option');
+        opt.value = code;
+        datalist.appendChild(opt);
+    });
+    document.body.appendChild(datalist);
+
     row.innerHTML = `
-        <input type="text" list="delayCodesDatalist" id="delayCode_${delayRowCount}" value="${codeVal}" placeholder="Code (e.g. GBD)" style="text-transform:uppercase; flex:1;">
-        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" placeholder="Mins (e.g. 75)" onblur="formatDelayMinutes(this)" style="flex:1;">
-        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('delayRow_${delayRowCount}').remove()" style="flex:0.8;">✕</button>
+        <input type="text" list="${dlId}" id="delayCode_${delayRowCount}" value="${codeVal}" placeholder="" style="text-transform:uppercase; flex:1;" oninput="validateDelayCode(this)">
+        <input type="text" id="delayMin_${delayRowCount}" value="${minVal}" placeholder="" style="flex:1;" oninput="updateDelayCountdown()" onblur="formatDelayMinutes(this)">
+        <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('delayRow_${delayRowCount}').remove(); document.getElementById('${dlId}').remove(); updateDelayCountdown();" style="flex:0.8;">✕</button>
     `;
     container.appendChild(row);
+    updateDelayCountdown();
 }
 
 let gateRowCount = 0;
@@ -1096,11 +1228,11 @@ function addGateItemRow(itemVal = "GB", countVal = "") {
         
         <div id="gateStepper_${gateRowCount}" class="qty-stepper" style="flex: 1.2; ${itemVal === 'OTHERS' ? 'display:none;' : 'display:flex;'}">
             <button type="button" class="qty-btn" onclick="adjustQty(${gateRowCount}, -1)">-</button>
-            <input type="number" id="gateCount_${gateRowCount}" value="${safeCount}" min="0" step="1" class="qty-input" placeholder="Qty" oninput="validatePositive(this)">
+            <input type="number" id="gateCount_${gateRowCount}" value="${safeCount}" min="0" step="1" class="qty-input" placeholder="" oninput="validatePositive(this)">
             <button type="button" class="qty-btn" onclick="adjustQty(${gateRowCount}, 1)">+</button>
         </div>
 
-        <input type="text" id="gateOtherText_${gateRowCount}" value="" placeholder="Item name" style="flex: 1.2; ${itemVal === 'OTHERS' ? 'display:block;' : 'display:none;'}">
+        <input type="text" id="gateOtherText_${gateRowCount}" value="" placeholder="" style="flex: 1.2; ${itemVal === 'OTHERS' ? 'display:block;' : 'display:none;'}">
         
         <button type="button" class="btn btn-small btn-danger" onclick="document.getElementById('gateRow_${gateRowCount}').remove()" style="flex: 0.6; min-width: 44px;">✕</button>
     `;
@@ -1161,13 +1293,37 @@ function checkOffloadReason(id) {
 }
 
 function generateReport() {
+    let std = document.getElementById('std').value.trim();
+    let atd = document.getElementById('atd').value.trim();
+    let targetDiff = calculateDiffMinutes(std, atd);
+    if (targetDiff < 0) targetDiff = 0;
+
+    let allocatedTotal = 0;
+    for (let i = 1; i <= delayRowCount; i++) {
+        let r = document.getElementById(`delayRow_${i}`);
+        if (r) {
+            let code = document.getElementById(`delayCode_${i}`).value.trim().toUpperCase();
+            let minInput = document.getElementById(`delayMin_${i}`);
+            let m = parseInt(minInput.value.trim(), 10);
+
+            if (!delayCodesDb.includes(code)) {
+                alert(`Delay Code [${code}] is not valid in Database!`);
+                return;
+            }
+            if (!isNaN(m)) allocatedTotal += m;
+        }
+    }
+
+    if (targetDiff > 0 && allocatedTotal !== targetDiff) {
+        alert(`Total delay minutes (${allocatedTotal} mins) must exactly match ATD vs STD delay (${targetDiff} mins)!`);
+        return;
+    }
+
     let flightNo = "CX" + document.getElementById('flightNo').value.trim();
     let flightDate = document.getElementById('flightDate').value.trim().toUpperCase();
     let dest = document.getElementById('dest').value.trim();
     let bay = document.getElementById('bay').value.trim();
-    let std = document.getElementById('std').value.trim();
     let etd = document.getElementById('etd').value.trim();
-    let atd = document.getElementById('atd').value.trim();
     let tco = document.getElementById('tco').value.trim();
     let sel = document.getElementById('sel').value.trim();
     let crewAccess = document.getElementById('crewAccessVal').value;
@@ -1234,12 +1390,6 @@ ${remarks}`;
         let landingForm = document.getElementById('landingFormVal').value;
         let timeline = document.getElementById('standardTimeline').value.trim();
 
-        // 確保生成時也對延誤時間進行一次 HHMM 格式化
-        for (let i = 1; i <= delayRowCount; i++) {
-            let minInput = document.getElementById(`delayMin_${i}`);
-            if (minInput) formatDelayMinutes(minInput);
-        }
-
         let delaysArr = [];
         for (let i = 1; i <= delayRowCount; i++) {
             let r = document.getElementById(`delayRow_${i}`);
@@ -1276,7 +1426,6 @@ ${separator}
 • Landing form: ${landingForm}
 
 ${separator}
-
 IRR description And Handling
 
 ${timeline}
@@ -1311,7 +1460,7 @@ function fallbackCopyText(text) {
         document.execCommand('copy');
         showToast("✅ Report Generated & Copied!");
     } catch (err) {
-        alert("複製失敗，請手動複製預覽區塊內容。");
+        alert("Copy failed, please copy from preview text area manually.");
     }
     document.body.removeChild(textArea);
 }
@@ -1328,7 +1477,7 @@ function showToast(message) {
 window.onload = function() {
     initTheme();
     initDatabase();
-    initTodayDate();
+    initDateSelectors();
     updateCalculations();
 }
 </script>
